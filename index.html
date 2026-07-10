@@ -63,77 +63,119 @@
 </div>
 
 <script>
-let rdvs=JSON.parse(localStorage.getItem("rdvs")||"[]");
+let rdvs = JSON.parse(localStorage.getItem("rdvs") || "[]");
 
-if(Notification.permission!=="granted"){Notification.requestPermission();}
-
-function save(){localStorage.setItem("rdvs",JSON.stringify(rdvs));}
-
-function ajouter(){
- const p=patient.value.trim(),m=motif.value.trim(),d=date.value,h=heure.value;
- if(!p||!d||!h){alert("Complétez les champs obligatoires.");return;}
- rdvs.push({patient:p,motif:m,date:d,heure:h,notif:false});
- save();
- patient.value="";motif.value="";date.value="";heure.value="";
- afficher();
+if (Notification.permission !== "granted") {
+  Notification.requestPermission();
 }
 
-function supprimer(i){
- if(confirm("Supprimer ce rendez-vous ?")){
-   rdvs.splice(i,1);
-   save();
-   afficher();
- }
+function save() {
+  localStorage.setItem("rdvs", JSON.stringify(rdvs));
 }
 
-function afficher(){
- const tb=document.getElementById("tbody");
- const rapp=document.getElementById("rappels");
- tb.innerHTML="";
- rapp.innerHTML="";
- let total=rdvs.length,today=0,soon=0,late=0;
- const now=new Date();
- const todayStr=now.toISOString().slice(0,10);
+function ajouter() {
+  const p = patient.value.trim();
+  const m = motif.value.trim();
+  const d = date.value;
+  const h = heure.value;
+  if (!p || !d || !h) {
+    alert("Complétez les champs obligatoires.");
+    return;
+  }
+  rdvs.push({ patient: p, motif: m, date: d, heure: h, notif: false });
+  save();
+  patient.value = "";
+  motif.value = "";
+  date.value = "";
+  heure.value = "";
+  afficher();
+}
 
- rdvs.sort((a,b)=>(a.date+a.heure).localeCompare(b.date+b.heure));
+function supprimer(i) {
+  if (confirm("Supprimer ce rendez-vous ?")) {
+    rdvs.splice(i, 1);
+    save();
+    afficher();
+  }
+}
 
- rdvs.forEach((r,i)=>{
-   const dt=new Date(r.date+"T"+r.heure);
-   const diff=(dt-now)/36e5;
+function afficher() {
+  const tb = document.getElementById("tbody");
+  const rapp = document.getElementById("rappels");
+  tb.innerHTML = "";
+  rapp.innerHTML = "";
+  let total = rdvs.length, today = 0, soon = 0, late = 0;
+  const now = new Date();
 
-   if(r.date===todayStr) today++;
-   if(diff>=0 && diff<=24){
+  /* Correction bug UTC : date locale et non UTC */
+  const y = now.getFullYear();
+  const mo = String(now.getMonth() + 1).padStart(2, "0");
+  const da = String(now.getDate()).padStart(2, "0");
+  const todayStr = y + "-" + mo + "-" + da;
+
+  rdvs.sort((a, b) => (a.date + a.heure).localeCompare(b.date + b.heure));
+
+  rdvs.forEach((r, i) => {
+    const dt = new Date(r.date + "T" + r.heure);
+    const diff = (dt - now) / 36e5; /* heures restantes */
+
+    if (r.date === todayStr) today++;
+
+    /* Rappels dans les 24h */
+    if (diff >= 0 && diff <= 24) {
       soon++;
-      rapp.innerHTML+=`<div class="bg-white p-3 rounded shadow">
-      <b>${r.patient}</b> - ${r.date} ${r.heure}<br>${r.motif||""}
-      </div>`;
-      if(Notification.permission==="granted" && !r.notif){
-         new Notification("Rendez-vous à venir",{body:r.patient+" à "+r.heure});
-         r.notif=true;
-         save();
+      const minutesRestantes = Math.round(diff * 60);
+      let indicateur = "";
+      if (diff <= 0.5) {
+        indicateur = " <span style='color:red;font-weight:bold'>⏰ DANS " + minutesRestantes + " MIN</span>";
+      } else {
+        indicateur = " <span style='color:#888'>dans " + Math.round(diff) + "h</span>";
       }
-   }
-   if(diff<0) late++;
+      rapp.innerHTML += '<div class="bg-white p-3 rounded shadow">'
+        + "<b>" + r.patient + "</b> — " + r.date + " " + r.heure + indicateur
+        + "<br>" + (r.motif || "")
+        + "</div>";
 
-   tb.innerHTML+=`
-   <tr class="border-b">
-   <td class="p-2">${r.patient}</td>
-   <td>${r.motif||""}</td>
-   <td>${r.date}</td>
-   <td>${r.heure}</td>
-   <td><button onclick="supprimer(${i})" class="bg-red-600 text-white px-3 py-1 rounded">Supprimer</button></td>
-   </tr>`;
- });
+      /* NOTIFICATION : uniquement 30 min avant le RDV */
+      if (Notification.permission === "granted" && !r.notif && diff >= 0 && diff <= 0.5) {
+        new Notification("Rappel RDV — 30 minutes", {
+          body: r.patient + " à " + r.heure + (r.motif ? " (" + r.motif + ")" : ""),
+          icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔔</text></svg>"
+        });
+        r.notif = true;
+        save();
+      }
+    }
 
- if(!rapp.innerHTML) rapp.innerHTML="<p>Aucun rendez-vous dans les prochaines 24 heures.</p>";
+    if (diff < 0) late++;
 
- document.getElementById("total").textContent=total;
- document.getElementById("today").textContent=today;
- document.getElementById("soon").textContent=soon;
- document.getElementById("late").textContent=late;
+    /* Protection XSS basique */
+    const safePatient = r.patient.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const safeMotif = (r.motif || "").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+    tb.innerHTML += '<tr class="border-b">'
+      + "<td class='p-2'>" + safePatient + "</td>"
+      + "<td class='p-2'>" + safeMotif + "</td>"
+      + "<td class='p-2'>" + r.date + "</td>"
+      + "<td class='p-2'>" + r.heure + "</td>"
+      + "<td class='p-2'><button onclick='supprimer(" + i + ")' class='bg-red-600 text-white px-3 py-1 rounded'>Supprimer</button></td>"
+      + "</tr>";
+  });
+
+  if (!rapp.innerHTML) {
+    rapp.innerHTML = "<p>Aucun rendez-vous dans les prochaines 24 heures.</p>";
+  }
+
+  document.getElementById("total").textContent = total;
+  document.getElementById("today").textContent = today;
+  document.getElementById("soon").textContent = soon;
+  document.getElementById("late").textContent = late;
 }
+
 afficher();
-setInterval(afficher,60000);
+
+/* Vérifie toutes les 30 secondes pour capper le créneau 30 min */
+setInterval(afficher, 30000);
 </script>
 </body>
 </html>
