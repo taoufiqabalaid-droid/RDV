@@ -9,17 +9,18 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
   :root {
-    --bg: #0f1117;
-    --card: #1a1d27;
-    --card-alt: #21242f;
-    --border: #2a2e3a;
-    --fg: #e8e9ed;
-    --muted: #6b7280;
-    --accent: #10b981;
-    --accent-glow: rgba(16,185,129,0.15);
-    --danger: #ef4444;
-    --danger-glow: rgba(239,68,68,0.2);
-    --warn: #f59e0b;
+    --bg: #f4f6f9;
+    --card: #ffffff;
+    --card-alt: #f8f9fb;
+    --border: #e2e6ed;
+    --fg: #1a1d27;
+    --muted: #7c8294;
+    --accent: #0d9668;
+    --accent-glow: rgba(13,150,104,0.1);
+    --danger: #dc2626;
+    --danger-glow: rgba(220,38,38,0.08);
+    --warn: #d97706;
+    --warn-glow: rgba(217,119,6,0.08);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -27,119 +28,100 @@
     background: var(--bg);
     color: var(--fg);
     min-height: 100vh;
-    overflow-x: hidden;
   }
-  /* Fond animé subtil */
+  /* Fond subtil avec motif */
   body::before {
     content: '';
     position: fixed;
-    top: -50%; left: -50%;
-    width: 200%; height: 200%;
-    background: radial-gradient(ellipse at 30% 20%, rgba(16,185,129,0.04) 0%, transparent 50%),
-                radial-gradient(ellipse at 70% 80%, rgba(239,68,68,0.03) 0%, transparent 50%);
-    animation: bgShift 20s ease-in-out infinite alternate;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 10%, rgba(13,150,104,0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 90%, rgba(220,38,38,0.03) 0%, transparent 50%),
+      url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='1' cy='1' r='0.6' fill='%23c8cdd6' fill-opacity='0.35'/%3E%3C/svg%3E");
     z-index: 0;
     pointer-events: none;
-  }
-  @keyframes bgShift {
-    0% { transform: translate(0, 0) rotate(0deg); }
-    100% { transform: translate(-3%, 2%) rotate(3deg); }
   }
 
   .container { position: relative; z-index: 1; }
 
-  /* Bannière notification rouge */
+  /* ====== Bannière notification rouge ====== */
   #notibar {
     position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
     color: #fff;
-    padding: 0;
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.5s cubic-bezier(0.22,1,0.36,1), padding 0.5s cubic-bezier(0.22,1,0.36,1);
-    box-shadow: 0 4px 30px rgba(239,68,68,0.4);
+    box-shadow: 0 6px 40px rgba(220,38,38,0.35);
   }
-  #notibar.active {
-    max-height: 400px;
-    padding: 16px 24px;
-  }
-  #notibar .notif-item {
-    animation: slideInNotif 0.4s ease-out both;
-  }
-  @keyframes slideInNotif {
-    from { opacity: 0; transform: translateX(-20px); }
+  #notibar.active { max-height: 400px; padding: 14px 24px; }
+  .notif-item { animation: slideNotif 0.35s ease-out both; }
+  @keyframes slideNotif {
+    from { opacity: 0; transform: translateX(-16px); }
     to { opacity: 1; transform: translateX(0); }
   }
-  #notibar .pulse-dot {
+  .pulse-dot {
     width: 10px; height: 10px;
     background: #fff;
     border-radius: 50%;
-    animation: pulseDot 1s ease-in-out infinite;
+    animation: pdot 1s ease-in-out infinite;
     flex-shrink: 0;
   }
-  @keyframes pulseDot {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.4; transform: scale(0.7); }
+  @keyframes pdot {
+    0%,100% { opacity:1; transform:scale(1); }
+    50% { opacity:0.3; transform:scale(0.6); }
   }
 
-  /* Cartes stats */
+  /* ====== Cartes stats ====== */
   .stat-card {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 20px 24px;
+    padding: 20px 22px;
     position: relative;
     overflow: hidden;
-    transition: transform 0.25s, border-color 0.25s;
+    transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
   }
   .stat-card:hover {
     transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
     border-color: var(--accent);
   }
-  .stat-card .stat-icon {
-    width: 42px; height: 42px;
-    border-radius: 12px;
+  .stat-icon {
+    width: 40px; height: 40px;
+    border-radius: 11px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 18px;
+    font-size: 16px;
     margin-bottom: 12px;
   }
-  .stat-card .stat-value {
-    font-size: 2rem;
-    font-weight: 900;
-    line-height: 1;
-  }
-  .stat-card .stat-label {
-    color: var(--muted);
-    font-size: 0.82rem;
-    margin-top: 4px;
-    font-weight: 500;
-  }
+  .stat-value { font-size: 1.9rem; font-weight: 900; line-height: 1; }
+  .stat-label { color: var(--muted); font-size: 0.8rem; margin-top: 5px; font-weight: 500; }
   .stat-card::after {
     content: '';
     position: absolute;
-    top: -30px; right: -30px;
-    width: 90px; height: 90px;
+    top: -25px; right: -25px;
+    width: 80px; height: 80px;
     border-radius: 50%;
-    opacity: 0.06;
+    opacity: 0.07;
     transition: opacity 0.3s;
   }
-  .stat-card:hover::after { opacity: 0.12; }
+  .stat-card:hover::after { opacity: 0.14; }
 
-  /* Formulaire */
+  /* ====== Formulaire ====== */
   .form-card {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 28px;
+    padding: 26px;
   }
   .form-input {
     background: var(--card-alt);
     border: 1px solid var(--border);
     color: var(--fg);
-    padding: 12px 16px;
+    padding: 11px 15px;
     border-radius: 10px;
     font-family: inherit;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
     width: 100%;
@@ -148,42 +130,36 @@
     border-color: var(--accent);
     box-shadow: 0 0 0 3px var(--accent-glow);
   }
-  .form-input::placeholder { color: var(--muted); }
+  .form-input::placeholder { color: #b0b6c4; }
   .btn-add {
     background: var(--accent);
     color: #fff;
     border: none;
-    padding: 12px 24px;
+    padding: 11px 22px;
     border-radius: 10px;
     font-family: inherit;
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     cursor: pointer;
-    transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+    transition: transform 0.15s, box-shadow 0.2s;
     white-space: nowrap;
   }
-  .btn-add:hover {
-    transform: scale(1.03);
-    box-shadow: 0 4px 20px var(--accent-glow);
-  }
+  .btn-add:hover { transform: scale(1.03); box-shadow: 0 4px 16px var(--accent-glow); }
   .btn-add:active { transform: scale(0.97); }
 
-  /* Section titres */
+  /* ====== Sections ====== */
   .section-title {
-    font-size: 1.15rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    font-size: 1.1rem; font-weight: 700;
+    display: flex; align-items: center; gap: 10px;
   }
-  .section-title .icon-circle {
+  .icon-circle {
     width: 32px; height: 32px;
     border-radius: 8px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 14px;
+    font-size: 13px;
   }
 
-  /* Tableau */
+  /* ====== Tableau ====== */
   .table-wrap {
     background: var(--card);
     border: 1px solid var(--border);
@@ -195,177 +171,153 @@
     background: var(--card-alt);
     color: var(--muted);
     font-weight: 600;
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    padding: 14px 16px;
+    padding: 13px 16px;
     text-align: left;
     border-bottom: 1px solid var(--border);
   }
   tbody td {
-    padding: 14px 16px;
+    padding: 13px 16px;
     border-bottom: 1px solid var(--border);
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     vertical-align: middle;
   }
   tbody tr { transition: background 0.15s; }
-  tbody tr:hover { background: rgba(255,255,255,0.02); }
+  tbody tr:hover { background: rgba(0,0,0,0.015); }
   tbody tr:last-child td { border-bottom: none; }
 
   .badge {
     display: inline-block;
     padding: 3px 10px;
     border-radius: 20px;
-    font-size: 0.75rem;
+    font-size: 0.73rem;
     font-weight: 600;
   }
-  .badge-soon { background: rgba(245,158,11,0.15); color: #f59e0b; }
-  .badge-late { background: rgba(239,68,68,0.15); color: #ef4444; }
-  .badge-ok { background: rgba(16,185,129,0.15); color: #10b981; }
+  .badge-soon { background: var(--warn-glow); color: var(--warn); }
+  .badge-late { background: var(--danger-glow); color: var(--danger); }
+  .badge-ok { background: var(--accent-glow); color: var(--accent); }
+  .badge-passed { background: #f1f3f6; color: var(--muted); }
 
   .btn-del {
-    background: rgba(239,68,68,0.12);
-    color: #ef4444;
-    border: 1px solid rgba(239,68,68,0.2);
-    padding: 6px 14px;
+    background: var(--danger-glow);
+    color: var(--danger);
+    border: 1px solid rgba(220,38,38,0.15);
+    padding: 5px 13px;
     border-radius: 8px;
     font-family: inherit;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.15s;
   }
-  .btn-del:hover {
-    background: #ef4444;
-    color: #fff;
-    border-color: #ef4444;
-  }
+  .btn-del:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
 
-  /* Rappels */
+  /* ====== Rappels ====== */
   .rappel-card {
-    background: var(--card-alt);
+    background: var(--card);
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 14px 18px;
+    padding: 13px 16px;
     transition: border-color 0.2s;
   }
   .rappel-card.urgent {
-    border-color: rgba(239,68,68,0.4);
-    background: linear-gradient(135deg, rgba(239,68,68,0.08), var(--card-alt));
+    border-color: rgba(220,38,38,0.35);
+    background: linear-gradient(135deg, rgba(220,38,38,0.04), var(--card));
   }
 
-  /* Onglets historique / à venir */
+  /* ====== Onglets ====== */
   .tabs {
-    display: flex;
-    gap: 4px;
-    background: var(--card-alt);
+    display: flex; gap: 3px;
+    background: #eef0f4;
     border-radius: 10px;
-    padding: 4px;
+    padding: 3px;
     width: fit-content;
-    margin-bottom: 16px;
   }
   .tab-btn {
-    background: none;
-    border: none;
+    background: none; border: none;
     color: var(--muted);
-    font-family: inherit;
-    font-size: 0.85rem;
-    font-weight: 600;
-    padding: 8px 18px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
+    font-family: inherit; font-size: 0.83rem; font-weight: 600;
+    padding: 7px 18px; border-radius: 8px;
+    cursor: pointer; transition: all 0.2s;
   }
   .tab-btn.active {
     background: var(--card);
     color: var(--fg);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 1px 6px rgba(0,0,0,0.08);
   }
   .tab-btn:hover:not(.active) { color: var(--fg); }
 
-  /* Historique ligne grisée */
   .hist-row td { color: var(--muted); }
-  .hist-row .hist-date { font-size: 0.8rem; }
 
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-
-  /* Toast suppression */
+  /* ====== Toast ====== */
   .toast {
     position: fixed; bottom: 24px; right: 24px; z-index: 999;
     background: var(--card);
     border: 1px solid var(--border);
     color: var(--fg);
-    padding: 14px 22px;
+    padding: 13px 20px;
     border-radius: 12px;
-    font-size: 0.88rem;
-    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    font-size: 0.86rem;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
     transform: translateY(100px);
     opacity: 0;
     transition: all 0.4s cubic-bezier(0.22,1,0.36,1);
   }
   .toast.show { transform: translateY(0); opacity: 1; }
 
-  /* Animation entrée cartes */
-  .fade-up {
-    animation: fadeUp 0.5s ease-out both;
-  }
+  /* ====== Animations ====== */
+  .fade-up { animation: fadeUp 0.45s ease-out both; }
   @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
+    from { opacity: 0; transform: translateY(18px); }
     to { opacity: 1; transform: translateY(0); }
   }
+  .count-animate { transition: transform 0.3s cubic-bezier(0.22,1,0.36,1); }
+  .count-animate.bump { transform: scale(1.18); }
+  .empty-row td {
+    text-align: center; color: var(--muted);
+    padding: 36px 16px; font-style: italic;
+  }
 
-  /* Compteur animé */
-  .count-animate {
-    transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
-  }
-  .count-animate.bump {
-    transform: scale(1.15);
-  }
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #d1d5de; border-radius: 3px; }
 
   /* Responsive */
   @media (max-width: 768px) {
-    .stat-card .stat-value { font-size: 1.5rem; }
+    .stat-value { font-size: 1.4rem; }
     .form-grid { grid-template-columns: 1fr !important; }
     .table-wrap { overflow-x: auto; }
-    table { min-width: 540px; }
-  }
-
-  /* Ligne vide tableau */
-  .empty-row td {
-    text-align: center;
-    color: var(--muted);
-    padding: 40px 16px;
-    font-style: italic;
+    table { min-width: 560px; }
   }
 </style>
 </head>
 <body>
 
-<!-- Bannière notification rouge fixe en haut -->
+<!-- Bannière notification rouge -->
 <div id="notibar">
   <div class="max-w-6xl mx-auto flex items-center gap-3 mb-2">
     <div class="pulse-dot"></div>
-    <span style="font-weight:800; font-size:0.95rem; letter-spacing:0.02em;">ALERTE RENDEZ-VOUS IMMINENT</span>
-    <button onclick="fermerNotif()" style="margin-left:auto; background:rgba(255,255,255,0.15); border:none; color:#fff; width:28px; height:28px; border-radius:6px; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center;">
+    <span style="font-weight:800; font-size:0.93rem; letter-spacing:0.02em;">ALERTE RENDEZ-VOUS IMMINENT</span>
+    <button onclick="fermerNotif()" style="margin-left:auto; background:rgba(255,255,255,0.15); border:none; color:#fff; width:28px; height:28px; border-radius:6px; cursor:pointer; font-size:13px; display:flex; align-items:center; justify-content:center;">
       <i class="fas fa-times"></i>
     </button>
   </div>
   <div id="notibar-content" class="max-w-6xl mx-auto space-y-2"></div>
 </div>
 
-<div class="container max-w-6xl mx-auto px-5 py-8" style="padding-top: 24px;">
+<div class="container max-w-6xl mx-auto px-5 py-8">
 
   <!-- En-tête -->
   <header class="flex items-center gap-4 mb-8 fade-up">
-    <div style="width:48px; height:48px; background:var(--accent-glow); border:1px solid rgba(16,185,129,0.3); border-radius:14px; display:flex; align-items:center; justify-content:center;">
+    <div style="width:48px; height:48px; background:var(--accent-glow); border:1px solid rgba(13,150,104,0.2); border-radius:14px; display:flex; align-items:center; justify-content:center;">
       <i class="fas fa-calendar-check" style="color:var(--accent); font-size:20px;"></i>
     </div>
     <div>
-      <h1 style="font-size:1.7rem; font-weight:900; letter-spacing:-0.02em;">Gestion des Rendez-vous</h1>
-      <p style="color:var(--muted); font-size:0.85rem; margin-top:2px;" id="dateNow"></p>
+      <h1 style="font-size:1.65rem; font-weight:900; letter-spacing:-0.02em; color:var(--fg);">Gestion des Rendez-vous</h1>
+      <p style="color:var(--muted); font-size:0.84rem; margin-top:2px;" id="dateNow"></p>
     </div>
   </header>
 
@@ -373,27 +325,27 @@
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-7">
     <div class="stat-card fade-up" style="animation-delay:0.05s">
       <div class="stat-icon" style="background:var(--accent-glow); color:var(--accent);"><i class="fas fa-list-check"></i></div>
-      <div class="stat-value count-animate" id="total" style="color:var(--fg);">0</div>
+      <div class="stat-value count-animate" id="total">0</div>
       <div class="stat-label">Total RDV</div>
-      <div style="position:absolute;top:-30px;right:-30px;width:90px;height:90px;border-radius:50%;background:var(--accent);opacity:0.05;"></div>
+      <div style="position:absolute;top:-25px;right:-25px;width:80px;height:80px;border-radius:50%;background:var(--accent);"></div>
     </div>
     <div class="stat-card fade-up" style="animation-delay:0.1s">
-      <div class="stat-icon" style="background:rgba(245,158,11,0.12); color:#f59e0b;"><i class="fas fa-sun"></i></div>
-      <div class="stat-value count-animate" id="today" style="color:#f59e0b;">0</div>
+      <div class="stat-icon" style="background:var(--warn-glow); color:var(--warn);"><i class="fas fa-sun"></i></div>
+      <div class="stat-value count-animate" id="today" style="color:var(--warn);">0</div>
       <div class="stat-label">Aujourd'hui</div>
-      <div style="position:absolute;top:-30px;right:-30px;width:90px;height:90px;border-radius:50%;background:#f59e0b;opacity:0.05;"></div>
+      <div style="position:absolute;top:-25px;right:-25px;width:80px;height:80px;border-radius:50%;background:var(--warn);"></div>
     </div>
     <div class="stat-card fade-up" style="animation-delay:0.15s">
-      <div class="stat-icon" style="background:rgba(59,130,246,0.12); color:#3b82f6;"><i class="fas fa-clock"></i></div>
-      <div class="stat-value count-animate" id="soon" style="color:#3b82f6;">0</div>
+      <div class="stat-icon" style="background:rgba(37,99,235,0.08); color:#2563eb;"><i class="fas fa-clock"></i></div>
+      <div class="stat-value count-animate" id="soon" style="color:#2563eb;">0</div>
       <div class="stat-label">A venir (24h)</div>
-      <div style="position:absolute;top:-30px;right:-30px;width:90px;height:90px;border-radius:50%;background:#3b82f6;opacity:0.05;"></div>
+      <div style="position:absolute;top:-25px;right:-25px;width:80px;height:80px;border-radius:50%;background:#2563eb;"></div>
     </div>
     <div class="stat-card fade-up" style="animation-delay:0.2s">
       <div class="stat-icon" style="background:var(--danger-glow); color:var(--danger);"><i class="fas fa-exclamation-triangle"></i></div>
       <div class="stat-value count-animate" id="late" style="color:var(--danger);">0</div>
       <div class="stat-label">En retard</div>
-      <div style="position:absolute;top:-30px;right:-30px;width:90px;height:90px;border-radius:50%;background:var(--danger);opacity:0.05;"></div>
+      <div style="position:absolute;top:-25px;right:-25px;width:80px;height:80px;border-radius:50%;background:var(--danger);"></div>
     </div>
   </div>
 
@@ -405,31 +357,31 @@
     </div>
     <div class="form-grid" style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr auto; gap:12px; align-items:end;">
       <div>
-        <label style="font-size:0.75rem; color:var(--muted); font-weight:600; display:block; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">Patient *</label>
+        <label style="font-size:0.72rem; color:var(--muted); font-weight:600; display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:0.04em;">Patient *</label>
         <input id="patient" class="form-input" placeholder="Nom du patient">
       </div>
       <div>
-        <label style="font-size:0.75rem; color:var(--muted); font-weight:600; display:block; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">Motif</label>
+        <label style="font-size:0.72rem; color:var(--muted); font-weight:600; display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:0.04em;">Motif</label>
         <input id="motif" class="form-input" placeholder="Consultation, suivi...">
       </div>
       <div>
-        <label style="font-size:0.75rem; color:var(--muted); font-weight:600; display:block; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">Date *</label>
+        <label style="font-size:0.72rem; color:var(--muted); font-weight:600; display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:0.04em;">Date *</label>
         <input id="date" type="date" class="form-input">
       </div>
       <div>
-        <label style="font-size:0.75rem; color:var(--muted); font-weight:600; display:block; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">Heure *</label>
+        <label style="font-size:0.72rem; color:var(--muted); font-weight:600; display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:0.04em;">Heure *</label>
         <input id="heure" type="time" class="form-input">
       </div>
-      <button onclick="ajouter()" class="btn-add" style="height:46px;">
-        <i class="fas fa-plus" style="margin-right:6px;"></i>Ajouter
+      <button onclick="ajouter()" class="btn-add" style="height:44px;">
+        <i class="fas fa-plus" style="margin-right:5px;"></i>Ajouter
       </button>
     </div>
   </div>
 
   <!-- Rappels -->
-  <div class="form-card mb-7 fade-up" style="animation-delay:0.3s; border-color:rgba(245,158,11,0.25); background:linear-gradient(135deg, rgba(245,158,11,0.04), var(--card));">
+  <div class="form-card mb-7 fade-up" style="animation-delay:0.3s; border-color:rgba(217,119,6,0.25); background:linear-gradient(135deg, rgba(217,119,6,0.03), var(--card));">
     <div class="section-title mb-4">
-      <div class="icon-circle" style="background:rgba(245,158,11,0.12); color:#f59e0b;"><i class="fas fa-bell"></i></div>
+      <div class="icon-circle" style="background:var(--warn-glow); color:var(--warn);"><i class="fas fa-bell"></i></div>
       Rappels (24 prochaines heures)
     </div>
     <div id="rappels" class="space-y-3"></div>
@@ -474,7 +426,6 @@
 let rdvs = JSON.parse(localStorage.getItem("rdvs") || "[]");
 let currentTab = "avenir";
 
-/* Demande permission notification navigateur */
 if ("Notification" in window && Notification.permission !== "granted") {
   Notification.requestPermission();
 }
@@ -483,26 +434,27 @@ function save() {
   localStorage.setItem("rdvs", JSON.stringify(rdvs));
 }
 
-/* ====== Date du jour affichée ====== */
+/* ====== Affichage date ====== */
 function setDateNow() {
   const now = new Date();
   const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  const str = now.toLocaleDateString('fr-FR', opts);
-  const h = String(now.getHours()).padStart(2,'0');
-  const m = String(now.getMinutes()).padStart(2,'0');
-  document.getElementById("dateNow").textContent = str.charAt(0).toUpperCase() + str.slice(1) + " — " + h + ":" + m;
+  let str = now.toLocaleDateString('fr-FR', opts);
+  str = str.charAt(0).toUpperCase() + str.slice(1);
+  const h = String(now.getHours()).padStart(2, '0');
+  const m = String(now.getMinutes()).padStart(2, '0');
+  document.getElementById("dateNow").textContent = str + " — " + h + ":" + m;
 }
 setDateNow();
 setInterval(setDateNow, 30000);
 
-/* ====== Ajouter un RDV ====== */
+/* ====== Ajouter ====== */
 function ajouter() {
   const p = document.getElementById("patient").value.trim();
   const m = document.getElementById("motif").value.trim();
   const d = document.getElementById("date").value;
   const h = document.getElementById("heure").value;
   if (!p || !d || !h) {
-    showToast("<i class='fas fa-exclamation-circle' style='color:#f59e0b;margin-right:8px;'></i>Complétez les champs obligatoires (Patient, Date, Heure).");
+    showToast("<i class='fas fa-exclamation-circle' style='color:var(--warn);margin-right:8px;'></i>Complétez les champs obligatoires (Patient, Date, Heure).");
     return;
   }
   rdvs.push({ patient: p, motif: m, date: d, heure: h, notif: false });
@@ -510,7 +462,6 @@ function ajouter() {
   document.getElementById("patient").value = "";
   document.getElementById("motif").value = "";
   document.getElementById("heure").value = "";
-  /* Garder la date pour faciliter les ajouts multiples le même jour */
   afficher();
   showToast("<i class='fas fa-check-circle' style='color:var(--accent);margin-right:8px;'></i>Rendez-vous ajouté avec succès.");
 }
@@ -527,7 +478,7 @@ function supprimer(i) {
 /* ====== Échapper HTML ====== */
 function esc(s) {
   if (!s) return "";
-  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
 /* ====== Onglets ====== */
@@ -538,10 +489,10 @@ function switchTab(tab, btn) {
   afficher();
 }
 
-/* ====== Fermer notification bannière ====== */
-let notifManuallyClosed = false;
+/* ====== Bannière notification ====== */
+let notifClosed = false;
 function fermerNotif() {
-  notifManuallyClosed = true;
+  notifClosed = true;
   document.getElementById("notibar").classList.remove("active");
 }
 
@@ -567,68 +518,61 @@ function afficher() {
   let total = rdvs.length, todayCount = 0, soonCount = 0, lateCount = 0;
   const now = new Date();
 
-  /* Date locale */
   const y = now.getFullYear();
   const mo = String(now.getMonth() + 1).padStart(2, "0");
   const da = String(now.getDate()).padStart(2, "0");
   const todayStr = y + "-" + mo + "-" + da;
 
-  /* Tri chronologique */
   rdvs.sort((a, b) => (a.date + a.heure).localeCompare(b.date + b.heure));
 
-  /* Séparer à venir / historique */
   const avenir = [];
   const historique = [];
-  let urgentNotifs = []; /* pour bannière rouge */
+  let urgents = [];
 
   rdvs.forEach((r, i) => {
     const dt = new Date(r.date + "T" + r.heure);
-    const diff = (dt - now) / 36e5; /* heures restantes, négatif si passé */
+    const diff = (dt - now) / 36e5;
 
     if (r.date === todayStr) todayCount++;
     if (diff >= 0 && diff <= 24) soonCount++;
     if (diff < 0) lateCount++;
 
     const entry = { ...r, diff, index: i };
-
     if (diff < 0) {
       historique.push(entry);
     } else {
       avenir.push(entry);
     }
 
-    /* Rappels dans les 24h (futur uniquement) */
+    /* Rappels 24h */
     if (diff >= 0 && diff <= 24) {
-      const minutesRestantes = Math.round(diff * 60);
+      const minR = Math.round(diff * 60);
       let timeStr = "";
       let isUrgent = false;
 
       if (diff <= 0.5) {
-        timeStr = "<span style='color:#ef4444; font-weight:800; font-size:0.82rem;'>DANS " + minutesRestantes + " MIN</span>";
+        timeStr = "<span style='color:#dc2626; font-weight:800; font-size:0.81rem;'>DANS " + minR + " MIN</span>";
         isUrgent = true;
       } else if (diff <= 2) {
-        timeStr = "<span style='color:#f59e0b; font-weight:700; font-size:0.82rem;'>dans " + Math.round(diff * 60) + " min</span>";
+        timeStr = "<span style='color:#d97706; font-weight:700; font-size:0.81rem;'>dans " + minR + " min</span>";
       } else {
-        timeStr = "<span style='color:var(--muted); font-size:0.82rem;'>dans " + Math.round(diff) + "h</span>";
+        timeStr = "<span style='color:var(--muted); font-size:0.81rem;'>dans " + Math.round(diff) + "h</span>";
       }
 
       rapp.innerHTML += '<div class="rappel-card' + (isUrgent ? ' urgent' : '') + '">'
         + "<div style='display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;'>"
-        + "<div><b style='font-size:0.95rem;'>" + esc(r.patient) + "</b>"
-        + " <span style='color:var(--muted); font-size:0.85rem;'>" + r.date + " a " + r.heure + "</span></div>"
+        + "<div><b style='font-size:0.93rem;'>" + esc(r.patient) + "</b>"
+        + " <span style='color:var(--muted); font-size:0.84rem;'>" + r.date + " à " + r.heure + "</span></div>"
         + timeStr + "</div>"
-        + (r.motif ? "<div style='color:var(--muted); font-size:0.83rem; margin-top:4px;'>" + esc(r.motif) + "</div>" : "")
+        + (r.motif ? "<div style='color:var(--muted); font-size:0.82rem; margin-top:3px;'>" + esc(r.motif) + "</div>" : "")
         + "</div>";
 
-      /* Bannière rouge si imminent (<= 30 min) */
-      if (isUrgent) {
-        urgentNotifs.push(r);
-      }
+      if (isUrgent) urgents.push(r);
 
-      /* Notification navigateur (30 min avant) */
+      /* Notification navigateur */
       if ("Notification" in window && Notification.permission === "granted" && !r.notif && diff >= 0 && diff <= 0.5) {
         new Notification("Rappel RDV — 30 minutes", {
-          body: r.patient + " a " + r.heure + (r.motif ? " (" + r.motif + ")" : ""),
+          body: r.patient + " à " + r.heure + (r.motif ? " (" + r.motif + ")" : ""),
           icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔔</text></svg>"
         });
         r.notif = true;
@@ -637,49 +581,48 @@ function afficher() {
     }
   });
 
-  /* Afficher / masquer bannière rouge */
-  if (urgentNotifs.length > 0 && !notifManuallyClosed) {
-    urgentNotifs.forEach((r, idx) => {
+  /* Bannière rouge */
+  if (urgents.length > 0 && !notifClosed) {
+    urgents.forEach((r, idx) => {
       notibarContent.innerHTML += '<div class="notif-item" style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.1); padding:10px 16px; border-radius:10px; animation-delay:' + (idx * 0.1) + 's;">'
-        + "<i class='fas fa-circle-exclamation' style='font-size:1.1rem; flex-shrink:0;'></i>"
+        + "<i class='fas fa-circle-exclamation' style='font-size:1.05rem; flex-shrink:0;'></i>"
         + "<div>"
-        + "<div style='font-weight:700; font-size:0.92rem;'>" + esc(r.patient) + " — " + r.heure + "</div>"
-        + (r.motif ? "<div style='opacity:0.8; font-size:0.82rem;'>" + esc(r.motif) + "</div>" : "")
+        + "<div style='font-weight:700; font-size:0.9rem;'>" + esc(r.patient) + " — " + r.heure + "</div>"
+        + (r.motif ? "<div style='opacity:0.8; font-size:0.81rem;'>" + esc(r.motif) + "</div>" : "")
         + "</div></div>";
     });
     notibar.classList.add("active");
-  } else if (urgentNotifs.length === 0) {
-    notifManuallyClosed = false; /* Réautoriser si plus urgent */
+  } else if (urgents.length === 0) {
+    notifClosed = false;
     notibar.classList.remove("active");
   }
 
-  /* Rappels vides */
   if (!rapp.innerHTML) {
-    rapp.innerHTML = '<div style="color:var(--muted); font-size:0.88rem; padding:8px 0;"><i class="fas fa-check" style="margin-right:6px; color:var(--accent);"></i>Aucun rendez-vous dans les prochaines 24 heures.</div>';
+    rapp.innerHTML = '<div style="color:var(--muted); font-size:0.87rem; padding:8px 0;"><i class="fas fa-check" style="margin-right:6px; color:var(--accent);"></i>Aucun rendez-vous dans les prochaines 24 heures.</div>';
   }
 
-  /* Remplir le tableau selon l'onglet */
+  /* Tableau selon onglet */
   const data = currentTab === "avenir" ? avenir : historique;
 
   if (data.length === 0) {
     const msg = currentTab === "avenir"
-      ? "Aucun rendez-vous a venir."
-      : "Aucun rendez-vous passe.";
-    tb.innerHTML = '<tr class="empty-row"><td colspan="6"><i class="fas fa-inbox" style="font-size:1.4rem; display:block; margin-bottom:8px; opacity:0.4;"></i>' + msg + '</td></tr>';
+      ? "Aucun rendez-vous à venir."
+      : "Aucun rendez-vous passé.";
+    tb.innerHTML = '<tr class="empty-row"><td colspan="6"><i class="fas fa-inbox" style="font-size:1.3rem; display:block; margin-bottom:8px; opacity:0.35;"></i>' + msg + '</td></tr>';
   } else {
     data.forEach(r => {
       let badge = "";
       let rowClass = "";
       if (currentTab === "historique") {
         rowClass = ' class="hist-row"';
-        badge = '<span class="badge badge-late"><i class="fas fa-check" style="margin-right:4px;"></i>Passe</span>';
+        badge = '<span class="badge badge-passed"><i class="fas fa-check" style="margin-right:3px;"></i>Passé</span>';
       } else {
         if (r.diff <= 0.5) {
-          badge = '<span class="badge badge-late"><i class="fas fa-bolt" style="margin-right:4px;"></i>Imminent</span>';
+          badge = '<span class="badge badge-late"><i class="fas fa-bolt" style="margin-right:3px;"></i>Imminent</span>';
         } else if (r.diff <= 2) {
-          badge = '<span class="badge badge-soon"><i class="fas fa-clock" style="margin-right:4px;"></i>Bientot</span>';
+          badge = '<span class="badge badge-soon"><i class="fas fa-clock" style="margin-right:3px;"></i>Bientôt</span>';
         } else {
-          badge = '<span class="badge badge-ok"><i class="fas fa-check" style="margin-right:4px;"></i>A venir</span>';
+          badge = '<span class="badge badge-ok"><i class="fas fa-check" style="margin-right:3px;"></i>A venir</span>';
         }
       }
 
@@ -689,38 +632,33 @@ function afficher() {
         + "<td>" + r.date + "</td>"
         + "<td>" + r.heure + "</td>"
         + "<td>" + badge + "</td>"
-        + "<td><button onclick='supprimer(" + r.index + ")' class='btn-del'><i class='fas fa-trash-can' style='margin-right:4px;'></i>Supprimer</button></td>"
+        + "<td><button onclick='supprimer(" + r.index + ")' class='btn-del'><i class='fas fa-trash-can' style='margin-right:3px;'></i>Supprimer</button></td>"
         + "</tr>";
     });
   }
 
-  /* Animer compteurs */
-  animateCounter("total", total);
-  animateCounter("today", todayCount);
-  animateCounter("soon", soonCount);
-  animateCounter("late", lateCount);
+  /* Compteurs animés */
+  animCount("total", total);
+  animCount("today", todayCount);
+  animCount("soon", soonCount);
+  animCount("late", lateCount);
 }
 
-/* Animation compteur */
-function animateCounter(id, value) {
+function animCount(id, val) {
   const el = document.getElementById(id);
   const prev = parseInt(el.textContent) || 0;
-  if (prev !== value) {
-    el.textContent = value;
+  if (prev !== val) {
+    el.textContent = val;
     el.classList.add("bump");
     setTimeout(() => el.classList.remove("bump"), 300);
   }
 }
 
-/* ====== Initialisation ====== */
-/* Préremplir la date du jour */
-const nowInit = new Date();
-const dateInit = nowInit.getFullYear() + "-" + String(nowInit.getMonth() + 1).padStart(2,'0') + "-" + String(nowInit.getDate()).padStart(2,'0');
-document.getElementById("date").value = dateInit;
+/* ====== Init ====== */
+const nowI = new Date();
+document.getElementById("date").value = nowI.getFullYear() + "-" + String(nowI.getMonth() + 1).padStart(2, "0") + "-" + String(nowI.getDate()).padStart(2, "0");
 
 afficher();
-
-/* Vérification toutes les 15 secondes pour la bannière rouge et les notifications */
 setInterval(afficher, 15000);
 </script>
 </body>
