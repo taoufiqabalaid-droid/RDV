@@ -5,67 +5,477 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Gestion des Rendez-vous</title>
 <script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@200;400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #1a1d27;
+    --card-alt: #21242f;
+    --border: #2a2e3a;
+    --fg: #e8e9ed;
+    --muted: #6b7280;
+    --accent: #10b981;
+    --accent-glow: rgba(16,185,129,0.15);
+    --danger: #ef4444;
+    --danger-glow: rgba(239,68,68,0.2);
+    --warn: #f59e0b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  /* Fond animé subtil */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(ellipse at 30% 20%, rgba(16,185,129,0.04) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(239,68,68,0.03) 0%, transparent 50%);
+    animation: bgShift 20s ease-in-out infinite alternate;
+    z-index: 0;
+    pointer-events: none;
+  }
+  @keyframes bgShift {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(-3%, 2%) rotate(3deg); }
+  }
+
+  .container { position: relative; z-index: 1; }
+
+  /* Bannière notification rouge */
+  #notibar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: #fff;
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.22,1,0.36,1), padding 0.5s cubic-bezier(0.22,1,0.36,1);
+    box-shadow: 0 4px 30px rgba(239,68,68,0.4);
+  }
+  #notibar.active {
+    max-height: 400px;
+    padding: 16px 24px;
+  }
+  #notibar .notif-item {
+    animation: slideInNotif 0.4s ease-out both;
+  }
+  @keyframes slideInNotif {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  #notibar .pulse-dot {
+    width: 10px; height: 10px;
+    background: #fff;
+    border-radius: 50%;
+    animation: pulseDot 1s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  @keyframes pulseDot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  /* Cartes stats */
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 24px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s, border-color 0.25s;
+  }
+  .stat-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+  }
+  .stat-card .stat-icon {
+    width: 42px; height: 42px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+  .stat-card .stat-value {
+    font-size: 2rem;
+    font-weight: 900;
+    line-height: 1;
+  }
+  .stat-card .stat-label {
+    color: var(--muted);
+    font-size: 0.82rem;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    opacity: 0.06;
+    transition: opacity 0.3s;
+  }
+  .stat-card:hover::after { opacity: 0.12; }
+
+  /* Formulaire */
+  .form-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+  }
+  .form-input {
+    background: var(--card-alt);
+    border: 1px solid var(--border);
+    color: var(--fg);
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%;
+  }
+  .form-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+  .form-input::placeholder { color: var(--muted); }
+  .btn-add {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+    white-space: nowrap;
+  }
+  .btn-add:hover {
+    transform: scale(1.03);
+    box-shadow: 0 4px 20px var(--accent-glow);
+  }
+  .btn-add:active { transform: scale(0.97); }
+
+  /* Section titres */
+  .section-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title .icon-circle {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+
+  /* Tableau */
+  .table-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    background: var(--card-alt);
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+    vertical-align: middle;
+  }
+  tbody tr { transition: background 0.15s; }
+  tbody tr:hover { background: rgba(255,255,255,0.02); }
+  tbody tr:last-child td { border-bottom: none; }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .badge-soon { background: rgba(245,158,11,0.15); color: #f59e0b; }
+  .badge-late { background: rgba(239,68,68,0.15); color: #ef4444; }
+  .badge-ok { background: rgba(16,185,129,0.15); color: #10b981; }
+
+  .btn-del {
+    background: rgba(239,68,68,0.12);
+    color: #ef4444;
+    border: 1px solid rgba(239,68,68,0.2);
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .btn-del:hover {
+    background: #ef4444;
+    color: #fff;
+    border-color: #ef4444;
+  }
+
+  /* Rappels */
+  .rappel-card {
+    background: var(--card-alt);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    transition: border-color 0.2s;
+  }
+  .rappel-card.urgent {
+    border-color: rgba(239,68,68,0.4);
+    background: linear-gradient(135deg, rgba(239,68,68,0.08), var(--card-alt));
+  }
+
+  /* Onglets historique / à venir */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--card-alt);
+    border-radius: 10px;
+    padding: 4px;
+    width: fit-content;
+    margin-bottom: 16px;
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    background: var(--card);
+    color: var(--fg);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+  .tab-btn:hover:not(.active) { color: var(--fg); }
+
+  /* Historique ligne grisée */
+  .hist-row td { color: var(--muted); }
+  .hist-row .hist-date { font-size: 0.8rem; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* Toast suppression */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 999;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--fg);
+    padding: 14px 22px;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.22,1,0.36,1);
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* Animation entrée cartes */
+  .fade-up {
+    animation: fadeUp 0.5s ease-out both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Compteur animé */
+  .count-animate {
+    transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+  }
+  .count-animate.bump {
+    transform: scale(1.15);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .stat-card .stat-value { font-size: 1.5rem; }
+    .form-grid { grid-template-columns: 1fr !important; }
+    .table-wrap { overflow-x: auto; }
+    table { min-width: 540px; }
+  }
+
+  /* Ligne vide tableau */
+  .empty-row td {
+    text-align: center;
+    color: var(--muted);
+    padding: 40px 16px;
+    font-style: italic;
+  }
+</style>
 </head>
-<body class="bg-gray-100">
-<div class="max-w-6xl mx-auto p-6">
-  <h1 class="text-3xl font-bold mb-6">📅 Gestion des Rendez-vous</h1>
+<body>
 
-  <div class="grid md:grid-cols-4 gap-4 mb-6">
-    <div class="bg-white rounded-xl p-4 shadow">
-      <div class="text-gray-500">Total RDV</div>
-      <div id="total" class="text-3xl font-bold">0</div>
-    </div>
-    <div class="bg-white rounded-xl p-4 shadow">
-      <div class="text-gray-500">Aujourd'hui</div>
-      <div id="today" class="text-3xl font-bold">0</div>
-    </div>
-    <div class="bg-white rounded-xl p-4 shadow">
-      <div class="text-gray-500">À venir (24h)</div>
-      <div id="soon" class="text-3xl font-bold">0</div>
-    </div>
-    <div class="bg-white rounded-xl p-4 shadow">
-      <div class="text-gray-500">En retard</div>
-      <div id="late" class="text-3xl font-bold">0</div>
-    </div>
+<!-- Bannière notification rouge fixe en haut -->
+<div id="notibar">
+  <div class="max-w-6xl mx-auto flex items-center gap-3 mb-2">
+    <div class="pulse-dot"></div>
+    <span style="font-weight:800; font-size:0.95rem; letter-spacing:0.02em;">ALERTE RENDEZ-VOUS IMMINENT</span>
+    <button onclick="fermerNotif()" style="margin-left:auto; background:rgba(255,255,255,0.15); border:none; color:#fff; width:28px; height:28px; border-radius:6px; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center;">
+      <i class="fas fa-times"></i>
+    </button>
   </div>
-
-  <div class="bg-white rounded-xl shadow p-5 mb-6">
-    <h2 class="font-bold text-xl mb-4">Nouveau rendez-vous</h2>
-    <div class="grid md:grid-cols-5 gap-3">
-      <input id="patient" class="border p-2 rounded" placeholder="Patient">
-      <input id="motif" class="border p-2 rounded" placeholder="Motif">
-      <input id="date" type="date" class="border p-2 rounded">
-      <input id="heure" type="time" class="border p-2 rounded">
-      <button onclick="ajouter()" class="bg-blue-600 text-white rounded px-4">Ajouter</button>
-    </div>
-  </div>
-
-  <div class="bg-yellow-50 border-l-4 border-yellow-500 rounded-xl p-5 mb-6">
-    <h2 class="font-bold text-xl">🔔 Rappels (24 prochaines heures)</h2>
-    <div id="rappels" class="mt-3 space-y-2"></div>
-  </div>
-
-  <div class="bg-white rounded-xl shadow p-5">
-    <h2 class="font-bold text-xl mb-4">Liste des rendez-vous</h2>
-    <table class="w-full border-collapse">
-      <thead>
-      <tr class="bg-gray-200">
-        <th class="p-2">Patient</th>
-        <th>Motif</th>
-        <th>Date</th>
-        <th>Heure</th>
-        <th>Action</th>
-      </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
-  </div>
+  <div id="notibar-content" class="max-w-6xl mx-auto space-y-2"></div>
 </div>
 
-<script>
-let rdvs = JSON.parse(localStorage.getItem("rdvs") || "[]");
+<div class="container max-w-6xl mx-auto px-5 py-8" style="padding-top: 24px;">
 
-if (Notification.permission !== "granted") {
+  <!-- En-tête -->
+  <header class="flex items-center gap-4 mb-8 fade-up">
+    <div style="width:48px; height:48px; background:var(--accent-glow); border:1px solid rgba(16,185,129,0.3); border-radius:14px; display:flex; align-items:center; justify-content:center;">
+      <i class="fas fa-calendar-check" style="color:var(--accent); font-size:20px;"></i>
+    </div>
+    <div>
+      <h1 style="font-size:1.7rem; font-weight:900; letter-spacing:-0.02em;">Gestion des Rendez-vous</h1>
+      <p style="color:var(--muted); font-size:0.85rem; margin-top:2px;" id="dateNow"></p>
+    </div>
+  </header>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-7">
+    <div class="stat-card fade-up" style="animation-delay:0.05s">
+      <div class="stat-icon" style="background:var(--accent-glow); color:var(--accent);"><i class="fas fa-list-check"></i></div>
+      <div class="stat-value count-animate" id="total" style="color:var(--fg);">0</div>
+      <div class="stat-label">Total RDV</div>
+      <div style="position:absolute;top:-30px;right:-30px;width:90px;height:90px;border-radius:50%;background:var(--accent);opacity:0.05;"></div>
+    </div>
+    <div class="stat-card fade-up" style="animation-delay:0.1s">
+      <div class="stat-icon" style="background:rgba(245,158,11,0.12); color:#f59e0b;"><i class="fas fa-sun"></i></div>
+      <div class="stat-value count-animate" id="today" style="color:#f59e0b;">0</div>
+      <div class="stat-label">Aujourd'hui</div>
+      <div style="position:absolute;top:-30px;right:-30px;width:90px;height:90px;border-radius:50%;background:#f59e0b;opacity:0.05;"></div>
+    </div>
+    <div class="stat-card fade-up" style="animation-delay:0.15s">
+      <div class="stat-icon" style="background:rgba(59,130,246,0.12); color:#3b82f6;"><i class="fas fa-clock"></i></div>
+      <div class="stat-value count-animate" id="soon" style="color:#3b82f6;">0</div>
+      <div class="stat-label">A venir (24h)</div>
+      <div style="position:absolute;top:-30px;right:-30px;width:90px;height:90px;border-radius:50%;background:#3b82f6;opacity:0.05;"></div>
+    </div>
+    <div class="stat-card fade-up" style="animation-delay:0.2s">
+      <div class="stat-icon" style="background:var(--danger-glow); color:var(--danger);"><i class="fas fa-exclamation-triangle"></i></div>
+      <div class="stat-value count-animate" id="late" style="color:var(--danger);">0</div>
+      <div class="stat-label">En retard</div>
+      <div style="position:absolute;top:-30px;right:-30px;width:90px;height:90px;border-radius:50%;background:var(--danger);opacity:0.05;"></div>
+    </div>
+  </div>
+
+  <!-- Formulaire -->
+  <div class="form-card mb-7 fade-up" style="animation-delay:0.25s">
+    <div class="section-title mb-5">
+      <div class="icon-circle" style="background:var(--accent-glow); color:var(--accent);"><i class="fas fa-plus"></i></div>
+      Nouveau rendez-vous
+    </div>
+    <div class="form-grid" style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr auto; gap:12px; align-items:end;">
+      <div>
+        <label style="font-size:0.75rem; color:var(--muted); font-weight:600; display:block; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">Patient *</label>
+        <input id="patient" class="form-input" placeholder="Nom du patient">
+      </div>
+      <div>
+        <label style="font-size:0.75rem; color:var(--muted); font-weight:600; display:block; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">Motif</label>
+        <input id="motif" class="form-input" placeholder="Consultation, suivi...">
+      </div>
+      <div>
+        <label style="font-size:0.75rem; color:var(--muted); font-weight:600; display:block; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">Date *</label>
+        <input id="date" type="date" class="form-input">
+      </div>
+      <div>
+        <label style="font-size:0.75rem; color:var(--muted); font-weight:600; display:block; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.04em;">Heure *</label>
+        <input id="heure" type="time" class="form-input">
+      </div>
+      <button onclick="ajouter()" class="btn-add" style="height:46px;">
+        <i class="fas fa-plus" style="margin-right:6px;"></i>Ajouter
+      </button>
+    </div>
+  </div>
+
+  <!-- Rappels -->
+  <div class="form-card mb-7 fade-up" style="animation-delay:0.3s; border-color:rgba(245,158,11,0.25); background:linear-gradient(135deg, rgba(245,158,11,0.04), var(--card));">
+    <div class="section-title mb-4">
+      <div class="icon-circle" style="background:rgba(245,158,11,0.12); color:#f59e0b;"><i class="fas fa-bell"></i></div>
+      Rappels (24 prochaines heures)
+    </div>
+    <div id="rappels" class="space-y-3"></div>
+  </div>
+
+  <!-- Tableau avec onglets -->
+  <div class="fade-up" style="animation-delay:0.35s">
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+      <div class="section-title">
+        <div class="icon-circle" style="background:var(--accent-glow); color:var(--accent);"><i class="fas fa-table-list"></i></div>
+        Rendez-vous
+      </div>
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('avenir', this)">A venir</button>
+        <button class="tab-btn" onclick="switchTab('historique', this)">Historique</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Patient</th>
+            <th>Motif</th>
+            <th>Date</th>
+            <th>Heure</th>
+            <th>Statut</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<script>
+/* ====== Données ====== */
+let rdvs = JSON.parse(localStorage.getItem("rdvs") || "[]");
+let currentTab = "avenir";
+
+/* Demande permission notification navigateur */
+if ("Notification" in window && Notification.permission !== "granted") {
   Notification.requestPermission();
 }
 
@@ -73,109 +483,245 @@ function save() {
   localStorage.setItem("rdvs", JSON.stringify(rdvs));
 }
 
+/* ====== Date du jour affichée ====== */
+function setDateNow() {
+  const now = new Date();
+  const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const str = now.toLocaleDateString('fr-FR', opts);
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  document.getElementById("dateNow").textContent = str.charAt(0).toUpperCase() + str.slice(1) + " — " + h + ":" + m;
+}
+setDateNow();
+setInterval(setDateNow, 30000);
+
+/* ====== Ajouter un RDV ====== */
 function ajouter() {
-  const p = patient.value.trim();
-  const m = motif.value.trim();
-  const d = date.value;
-  const h = heure.value;
+  const p = document.getElementById("patient").value.trim();
+  const m = document.getElementById("motif").value.trim();
+  const d = document.getElementById("date").value;
+  const h = document.getElementById("heure").value;
   if (!p || !d || !h) {
-    alert("Complétez les champs obligatoires.");
+    showToast("<i class='fas fa-exclamation-circle' style='color:#f59e0b;margin-right:8px;'></i>Complétez les champs obligatoires (Patient, Date, Heure).");
     return;
   }
   rdvs.push({ patient: p, motif: m, date: d, heure: h, notif: false });
   save();
-  patient.value = "";
-  motif.value = "";
-  date.value = "";
-  heure.value = "";
+  document.getElementById("patient").value = "";
+  document.getElementById("motif").value = "";
+  document.getElementById("heure").value = "";
+  /* Garder la date pour faciliter les ajouts multiples le même jour */
+  afficher();
+  showToast("<i class='fas fa-check-circle' style='color:var(--accent);margin-right:8px;'></i>Rendez-vous ajouté avec succès.");
+}
+
+/* ====== Supprimer ====== */
+function supprimer(i) {
+  const r = rdvs[i];
+  rdvs.splice(i, 1);
+  save();
+  afficher();
+  showToast("<i class='fas fa-trash' style='color:var(--danger);margin-right:8px;'></i>RDV de " + esc(r.patient) + " supprimé.");
+}
+
+/* ====== Échapper HTML ====== */
+function esc(s) {
+  if (!s) return "";
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+/* ====== Onglets ====== */
+function switchTab(tab, btn) {
+  currentTab = tab;
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
   afficher();
 }
 
-function supprimer(i) {
-  if (confirm("Supprimer ce rendez-vous ?")) {
-    rdvs.splice(i, 1);
-    save();
-    afficher();
-  }
+/* ====== Fermer notification bannière ====== */
+let notifManuallyClosed = false;
+function fermerNotif() {
+  notifManuallyClosed = true;
+  document.getElementById("notibar").classList.remove("active");
 }
 
+/* ====== Toast ====== */
+function showToast(html) {
+  const t = document.getElementById("toast");
+  t.innerHTML = html;
+  t.classList.add("show");
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove("show"), 3000);
+}
+
+/* ====== Affichage principal ====== */
 function afficher() {
   const tb = document.getElementById("tbody");
   const rapp = document.getElementById("rappels");
+  const notibar = document.getElementById("notibar");
+  const notibarContent = document.getElementById("notibar-content");
   tb.innerHTML = "";
   rapp.innerHTML = "";
-  let total = rdvs.length, today = 0, soon = 0, late = 0;
+  notibarContent.innerHTML = "";
+
+  let total = rdvs.length, todayCount = 0, soonCount = 0, lateCount = 0;
   const now = new Date();
 
-  /* Correction bug UTC : date locale et non UTC */
+  /* Date locale */
   const y = now.getFullYear();
   const mo = String(now.getMonth() + 1).padStart(2, "0");
   const da = String(now.getDate()).padStart(2, "0");
   const todayStr = y + "-" + mo + "-" + da;
 
+  /* Tri chronologique */
   rdvs.sort((a, b) => (a.date + a.heure).localeCompare(b.date + b.heure));
+
+  /* Séparer à venir / historique */
+  const avenir = [];
+  const historique = [];
+  let urgentNotifs = []; /* pour bannière rouge */
 
   rdvs.forEach((r, i) => {
     const dt = new Date(r.date + "T" + r.heure);
-    const diff = (dt - now) / 36e5; /* heures restantes */
+    const diff = (dt - now) / 36e5; /* heures restantes, négatif si passé */
 
-    if (r.date === todayStr) today++;
+    if (r.date === todayStr) todayCount++;
+    if (diff >= 0 && diff <= 24) soonCount++;
+    if (diff < 0) lateCount++;
 
-    /* Rappels dans les 24h */
+    const entry = { ...r, diff, index: i };
+
+    if (diff < 0) {
+      historique.push(entry);
+    } else {
+      avenir.push(entry);
+    }
+
+    /* Rappels dans les 24h (futur uniquement) */
     if (diff >= 0 && diff <= 24) {
-      soon++;
       const minutesRestantes = Math.round(diff * 60);
-      let indicateur = "";
+      let timeStr = "";
+      let isUrgent = false;
+
       if (diff <= 0.5) {
-        indicateur = " <span style='color:red;font-weight:bold'>⏰ DANS " + minutesRestantes + " MIN</span>";
+        timeStr = "<span style='color:#ef4444; font-weight:800; font-size:0.82rem;'>DANS " + minutesRestantes + " MIN</span>";
+        isUrgent = true;
+      } else if (diff <= 2) {
+        timeStr = "<span style='color:#f59e0b; font-weight:700; font-size:0.82rem;'>dans " + Math.round(diff * 60) + " min</span>";
       } else {
-        indicateur = " <span style='color:#888'>dans " + Math.round(diff) + "h</span>";
+        timeStr = "<span style='color:var(--muted); font-size:0.82rem;'>dans " + Math.round(diff) + "h</span>";
       }
-      rapp.innerHTML += '<div class="bg-white p-3 rounded shadow">'
-        + "<b>" + r.patient + "</b> — " + r.date + " " + r.heure + indicateur
-        + "<br>" + (r.motif || "")
+
+      rapp.innerHTML += '<div class="rappel-card' + (isUrgent ? ' urgent' : '') + '">'
+        + "<div style='display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;'>"
+        + "<div><b style='font-size:0.95rem;'>" + esc(r.patient) + "</b>"
+        + " <span style='color:var(--muted); font-size:0.85rem;'>" + r.date + " a " + r.heure + "</span></div>"
+        + timeStr + "</div>"
+        + (r.motif ? "<div style='color:var(--muted); font-size:0.83rem; margin-top:4px;'>" + esc(r.motif) + "</div>" : "")
         + "</div>";
 
-      /* NOTIFICATION : uniquement 30 min avant le RDV */
-      if (Notification.permission === "granted" && !r.notif && diff >= 0 && diff <= 0.5) {
+      /* Bannière rouge si imminent (<= 30 min) */
+      if (isUrgent) {
+        urgentNotifs.push(r);
+      }
+
+      /* Notification navigateur (30 min avant) */
+      if ("Notification" in window && Notification.permission === "granted" && !r.notif && diff >= 0 && diff <= 0.5) {
         new Notification("Rappel RDV — 30 minutes", {
-          body: r.patient + " à " + r.heure + (r.motif ? " (" + r.motif + ")" : ""),
+          body: r.patient + " a " + r.heure + (r.motif ? " (" + r.motif + ")" : ""),
           icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔔</text></svg>"
         });
         r.notif = true;
         save();
       }
     }
-
-    if (diff < 0) late++;
-
-    /* Protection XSS basique */
-    const safePatient = r.patient.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    const safeMotif = (r.motif || "").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
-    tb.innerHTML += '<tr class="border-b">'
-      + "<td class='p-2'>" + safePatient + "</td>"
-      + "<td class='p-2'>" + safeMotif + "</td>"
-      + "<td class='p-2'>" + r.date + "</td>"
-      + "<td class='p-2'>" + r.heure + "</td>"
-      + "<td class='p-2'><button onclick='supprimer(" + i + ")' class='bg-red-600 text-white px-3 py-1 rounded'>Supprimer</button></td>"
-      + "</tr>";
   });
 
-  if (!rapp.innerHTML) {
-    rapp.innerHTML = "<p>Aucun rendez-vous dans les prochaines 24 heures.</p>";
+  /* Afficher / masquer bannière rouge */
+  if (urgentNotifs.length > 0 && !notifManuallyClosed) {
+    urgentNotifs.forEach((r, idx) => {
+      notibarContent.innerHTML += '<div class="notif-item" style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.1); padding:10px 16px; border-radius:10px; animation-delay:' + (idx * 0.1) + 's;">'
+        + "<i class='fas fa-circle-exclamation' style='font-size:1.1rem; flex-shrink:0;'></i>"
+        + "<div>"
+        + "<div style='font-weight:700; font-size:0.92rem;'>" + esc(r.patient) + " — " + r.heure + "</div>"
+        + (r.motif ? "<div style='opacity:0.8; font-size:0.82rem;'>" + esc(r.motif) + "</div>" : "")
+        + "</div></div>";
+    });
+    notibar.classList.add("active");
+  } else if (urgentNotifs.length === 0) {
+    notifManuallyClosed = false; /* Réautoriser si plus urgent */
+    notibar.classList.remove("active");
   }
 
-  document.getElementById("total").textContent = total;
-  document.getElementById("today").textContent = today;
-  document.getElementById("soon").textContent = soon;
-  document.getElementById("late").textContent = late;
+  /* Rappels vides */
+  if (!rapp.innerHTML) {
+    rapp.innerHTML = '<div style="color:var(--muted); font-size:0.88rem; padding:8px 0;"><i class="fas fa-check" style="margin-right:6px; color:var(--accent);"></i>Aucun rendez-vous dans les prochaines 24 heures.</div>';
+  }
+
+  /* Remplir le tableau selon l'onglet */
+  const data = currentTab === "avenir" ? avenir : historique;
+
+  if (data.length === 0) {
+    const msg = currentTab === "avenir"
+      ? "Aucun rendez-vous a venir."
+      : "Aucun rendez-vous passe.";
+    tb.innerHTML = '<tr class="empty-row"><td colspan="6"><i class="fas fa-inbox" style="font-size:1.4rem; display:block; margin-bottom:8px; opacity:0.4;"></i>' + msg + '</td></tr>';
+  } else {
+    data.forEach(r => {
+      let badge = "";
+      let rowClass = "";
+      if (currentTab === "historique") {
+        rowClass = ' class="hist-row"';
+        badge = '<span class="badge badge-late"><i class="fas fa-check" style="margin-right:4px;"></i>Passe</span>';
+      } else {
+        if (r.diff <= 0.5) {
+          badge = '<span class="badge badge-late"><i class="fas fa-bolt" style="margin-right:4px;"></i>Imminent</span>';
+        } else if (r.diff <= 2) {
+          badge = '<span class="badge badge-soon"><i class="fas fa-clock" style="margin-right:4px;"></i>Bientot</span>';
+        } else {
+          badge = '<span class="badge badge-ok"><i class="fas fa-check" style="margin-right:4px;"></i>A venir</span>';
+        }
+      }
+
+      tb.innerHTML += '<tr' + rowClass + '>'
+        + "<td style='font-weight:600;'>" + esc(r.patient) + "</td>"
+        + "<td style='color:var(--muted);'>" + (esc(r.motif) || "—") + "</td>"
+        + "<td>" + r.date + "</td>"
+        + "<td>" + r.heure + "</td>"
+        + "<td>" + badge + "</td>"
+        + "<td><button onclick='supprimer(" + r.index + ")' class='btn-del'><i class='fas fa-trash-can' style='margin-right:4px;'></i>Supprimer</button></td>"
+        + "</tr>";
+    });
+  }
+
+  /* Animer compteurs */
+  animateCounter("total", total);
+  animateCounter("today", todayCount);
+  animateCounter("soon", soonCount);
+  animateCounter("late", lateCount);
 }
+
+/* Animation compteur */
+function animateCounter(id, value) {
+  const el = document.getElementById(id);
+  const prev = parseInt(el.textContent) || 0;
+  if (prev !== value) {
+    el.textContent = value;
+    el.classList.add("bump");
+    setTimeout(() => el.classList.remove("bump"), 300);
+  }
+}
+
+/* ====== Initialisation ====== */
+/* Préremplir la date du jour */
+const nowInit = new Date();
+const dateInit = nowInit.getFullYear() + "-" + String(nowInit.getMonth() + 1).padStart(2,'0') + "-" + String(nowInit.getDate()).padStart(2,'0');
+document.getElementById("date").value = dateInit;
 
 afficher();
 
-/* Vérifie toutes les 30 secondes pour capper le créneau 30 min */
-setInterval(afficher, 30000);
+/* Vérification toutes les 15 secondes pour la bannière rouge et les notifications */
+setInterval(afficher, 15000);
 </script>
 </body>
 </html>
