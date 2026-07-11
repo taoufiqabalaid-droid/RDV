@@ -46,6 +46,170 @@
   }
   .container { position: relative; z-index: 1; }
 
+  /* ====== OVERLAY BLOQUANT ====== */
+  #blockOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 5, 5, 0.92);
+    backdrop-filter: blur(18px) saturate(1.5);
+    animation: overlayIn 0.4s ease-out;
+  }
+  #blockOverlay.active { display: flex; }
+  @keyframes overlayIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .block-card {
+    background: linear-gradient(160deg, #2a0a0a 0%, #1a0505 40%, #0f0202 100%);
+    border: 2px solid rgba(220,38,38,0.5);
+    border-radius: 28px;
+    padding: 48px 44px;
+    max-width: 520px;
+    width: 92%;
+    text-align: center;
+    box-shadow:
+      0 0 80px rgba(220,38,38,0.3),
+      0 0 200px rgba(220,38,38,0.1),
+      inset 0 1px 0 rgba(255,255,255,0.05);
+    animation: blockCardIn 0.5s cubic-bezier(0.22,1,0.36,1);
+    position: relative;
+    overflow: hidden;
+  }
+  @keyframes blockCardIn {
+    from { opacity: 0; transform: translateY(30px) scale(0.94); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .block-card::before {
+    content: '';
+    position: absolute;
+    top: -60%; left: -60%;
+    width: 220%; height: 220%;
+    background: conic-gradient(from 0deg, transparent 0%, rgba(220,38,38,0.08) 25%, transparent 50%);
+    animation: rotateGlow 6s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes rotateGlow {
+    to { transform: rotate(360deg); }
+  }
+  .block-icon-wrap {
+    width: 90px; height: 90px;
+    margin: 0 auto 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(220,38,38,0.25), rgba(220,38,38,0.08));
+    border: 2px solid rgba(220,38,38,0.4);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    z-index: 1;
+    animation: iconPulse 2s ease-in-out infinite;
+  }
+  @keyframes iconPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.4); }
+    50% { box-shadow: 0 0 0 18px rgba(220,38,38,0); }
+  }
+  .block-icon-wrap i { font-size: 38px; color: #f87171; }
+  .block-title {
+    font-size: 1.55rem;
+    font-weight: 900;
+    color: #fca5a5;
+    letter-spacing: -0.01em;
+    margin-bottom: 8px;
+    position: relative;
+    z-index: 1;
+  }
+  .block-subtitle {
+    font-size: 0.88rem;
+    color: rgba(252,165,165,0.6);
+    margin-bottom: 32px;
+    position: relative;
+    z-index: 1;
+  }
+  .block-rdv-list {
+    text-align: left;
+    margin-bottom: 32px;
+    position: relative;
+    z-index: 1;
+  }
+  .block-rdv-item {
+    background: rgba(220,38,38,0.1);
+    border: 1px solid rgba(220,38,38,0.2);
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 10px;
+    animation: rdvSlide 0.4s ease-out both;
+  }
+  .block-rdv-item:last-child { margin-bottom: 0; }
+  @keyframes rdvSlide {
+    from { opacity: 0; transform: translateX(-12px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  .block-rdv-name {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .block-rdv-detail {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.5);
+  }
+  .block-rdv-time {
+    display: inline-block;
+    background: rgba(220,38,38,0.3);
+    color: #fca5a5;
+    font-weight: 800;
+    font-size: 0.78rem;
+    padding: 3px 10px;
+    border-radius: 6px;
+    margin-top: 8px;
+    letter-spacing: 0.03em;
+  }
+  .block-btn {
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    color: #fff;
+    border: none;
+    padding: 16px 48px;
+    border-radius: 14px;
+    font-family: inherit;
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.25s;
+    box-shadow: 0 4px 24px rgba(220,38,38,0.4);
+    letter-spacing: 0.01em;
+  }
+  .block-btn:hover {
+    transform: scale(1.04);
+    box-shadow: 0 6px 32px rgba(220,38,38,0.55);
+  }
+  .block-btn:active { transform: scale(0.97); }
+  .block-hint {
+    position: relative;
+    z-index: 1;
+    color: rgba(255,255,255,0.25);
+    font-size: 0.75rem;
+    margin-top: 16px;
+  }
+  /* Ligne rouge animée en haut de l'overlay */
+  .block-top-line {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #ef4444, #fbbf24, #ef4444, transparent);
+    background-size: 200% 100%;
+    animation: lineSlide 2s linear infinite;
+  }
+  @keyframes lineSlide {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* ====== Bannière notibar (non bloquante) ====== */
   #notibar {
     position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
     background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
@@ -210,10 +374,29 @@
     .form-grid { grid-template-columns: 1fr !important; }
     .table-wrap { overflow-x: auto; }
     table { min-width: 700px; }
+    .block-card { padding: 32px 24px; }
+    .block-title { font-size: 1.3rem; }
   }
 </style>
 </head>
 <body>
+
+<!-- ====== OVERLAY BLOQUANT ====== -->
+<div id="blockOverlay">
+  <div class="block-top-line"></div>
+  <div class="block-card">
+    <div class="block-icon-wrap">
+      <i class="fas fa-bell"></i>
+    </div>
+    <div class="block-title">Rendez-vous imminent</div>
+    <div class="block-subtitle">Vous devez prendre connaissance avant de continuer</div>
+    <div id="blockList" class="block-rdv-list"></div>
+    <button class="block-btn" onclick="fermerBlock()">
+      <i class="fas fa-check" style="margin-right:8px;"></i>J'ai pris connaissance
+    </button>
+    <div class="block-hint">L'accès a l'application est bloque jusqu'a validation</div>
+  </div>
+</div>
 
 <div id="notibar">
   <div class="max-w-6xl mx-auto flex items-center gap-3 mb-2">
@@ -238,7 +421,7 @@
       </button>
     </div>
     <p style="color:var(--muted); font-size:0.87rem; margin-bottom:16px;">
-      Ouvrir les applications de messagerie pour chaque rendez-vous à venir ayant un numéro de téléphone.
+      Ouvrir les applications de messagerie pour chaque rendez-vous a venir ayant un numero de telephone.
     </p>
     <div id="massList" class="space-y-3" style="max-height:300px; overflow-y:auto;"></div>
     <div class="flex gap-3 mt-6">
@@ -303,7 +486,7 @@
     </div>
     <div class="form-grid" style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr 1fr auto; gap:12px; align-items:end;">
       <div>
-        <label style="font-size:0.72rem; color:var(--muted); font-weight:600; display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:0.04em;">Personne concernée *</label>
+        <label style="font-size:0.72rem; color:var(--muted); font-weight:600; display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:0.04em;">Personne concernee *</label>
         <input id="patient" class="form-input" placeholder="Nom de la personne">
       </div>
       <div>
@@ -356,7 +539,7 @@
       <table>
         <thead>
           <tr>
-            <th>Personne concernée</th>
+            <th>Personne concernee</th>
             <th>Telephone</th>
             <th>Motif</th>
             <th>Date</th>
@@ -377,6 +560,7 @@
 <script>
 let rdvs = JSON.parse(localStorage.getItem("rdvs") || "[]");
 let currentTab = "avenir";
+let blockDismissedFor = {}; /* Stocke les RDV dont le blocage a été acquitté */
 
 if ("Notification" in window && Notification.permission !== "granted") {
   Notification.requestPermission();
@@ -399,19 +583,12 @@ setInterval(setDateNow, 30000);
 function cleanPhone(tel) {
   if (!tel) return "";
   let c = tel.replace(/[^\d+]/g, "");
-  if (c.startsWith("0") && c.length >= 10) {
-    c = "+33" + c.substring(1);
-  }
-  if (!c.startsWith("+") && c.length === 10 && c.startsWith("0")) {
-    c = "+33" + c.substring(1);
-  }
+  if (c.startsWith("0") && c.length >= 10) c = "+33" + c.substring(1);
+  if (!c.startsWith("+") && c.length === 10 && c.startsWith("0")) c = "+33" + c.substring(1);
   return c;
 }
 
-function formatPhone(tel) {
-  if (!tel) return "—";
-  return esc(tel);
-}
+function formatPhone(tel) { if (!tel) return "—"; return esc(tel); }
 
 function genMessage(r) {
   const dateFr = formatDateFR(r.date);
@@ -433,8 +610,7 @@ function smsLink(phone, msg) {
 function waLink(phone, msg) {
   const p = cleanPhone(phone);
   if (!p) return null;
-  let num = p.replace("+", "");
-  return "https://wa.me/" + num + "?text=" + encodeURIComponent(msg);
+  return "https://wa.me/" + p.replace("+", "") + "?text=" + encodeURIComponent(msg);
 }
 
 function ajouter() {
@@ -443,12 +619,8 @@ function ajouter() {
   const mEl = document.getElementById("motif");
   const dEl = document.getElementById("date");
   const hEl = document.getElementById("heure");
-
-  const p = pEl.value.trim();
-  const t = tEl.value.trim();
-  const m = mEl.value.trim();
-  const d = dEl.value;
-  const h = hEl.value;
+  const p = pEl.value.trim(), t = tEl.value.trim(), m = mEl.value.trim();
+  const d = dEl.value, h = hEl.value;
 
   let hasError = false;
   [pEl, tEl, dEl, hEl].forEach(el => el.classList.remove("error"));
@@ -458,7 +630,7 @@ function ajouter() {
   if (!h) { hEl.classList.add("error"); hasError = true; }
 
   if (hasError) {
-    showToast("<i class='fas fa-exclamation-circle' style='color:var(--danger);margin-right:8px;'></i>Complétez les champs obligatoires (Personne concernée, Telephone, Date, Heure).");
+    showToast("<i class='fas fa-exclamation-circle' style='color:var(--danger);margin-right:8px;'></i>Complétez les champs obligatoires (Personne concernee, Telephone, Date, Heure).");
     return;
   }
 
@@ -510,97 +682,121 @@ function msgButtons(r) {
   const sl = smsLink(r.telephone, msg);
   const wl = waLink(r.telephone, msg);
   let html = '<div class="action-btns">';
-  if (sl) {
-    html += '<a href="' + sl + '" class="btn-sms" title="Envoyer un SMS"><i class="fas fa-comment-sms"></i> SMS</a>';
-  }
-  if (wl) {
-    html += '<a href="' + wl + '" target="_blank" class="btn-wa" title="Envoyer par WhatsApp"><i class="fab fa-whatsapp"></i> WA</a>';
-  }
-  if (!sl && !wl) {
-    html += '<span class="no-phone"><i class="fas fa-phone-slash" style="margin-right:3px;"></i>Pas de numero</span>';
-  }
+  if (sl) html += '<a href="' + sl + '" class="btn-sms" title="Envoyer un SMS"><i class="fas fa-comment-sms"></i> SMS</a>';
+  if (wl) html += '<a href="' + wl + '" target="_blank" class="btn-wa" title="Envoyer par WhatsApp"><i class="fab fa-whatsapp"></i> WA</a>';
+  if (!sl && !wl) html += '<span class="no-phone"><i class="fas fa-phone-slash" style="margin-right:3px;"></i>Pas de numero</span>';
   html += '</div>';
   return html;
 }
 
 function envoyerRappelsRapide() {
   const now = new Date();
-  const avenirAvecTel = rdvs.filter(r => {
+  const list = rdvs.filter(r => {
     const dt = new Date(r.date + "T" + r.heure);
-    const diff = (dt - now) / 36e5;
-    return diff >= 0 && diff <= 24 && r.telephone && cleanPhone(r.telephone);
+    return (dt - now) / 36e5 >= 0 && (dt - now) / 36e5 <= 24 && r.telephone && cleanPhone(r.telephone);
   });
-  if (avenirAvecTel.length === 0) {
-    showToast("<i class='fas fa-info-circle' style='color:var(--sms);margin-right:8px;'></i>Aucun rendez-vous avec numero dans les 24h.");
-    return;
-  }
-  const first = avenirAvecTel[0];
-  const msg = genMessage(first);
-  const link = smsLink(first.telephone, msg);
+  if (list.length === 0) { showToast("<i class='fas fa-info-circle' style='color:var(--sms);margin-right:8px;'></i>Aucun RDV avec numero dans les 24h."); return; }
+  const first = list[0];
+  const link = smsLink(first.telephone, genMessage(first));
   if (link) window.open(link, '_blank');
-  if (avenirAvecTel.length > 1) {
-    showToast("<i class='fas fa-comment-sms' style='color:var(--sms);margin-right:8px;'></i>SMS ouvert pour " + esc(first.patient) + ". " + (avenirAvecTel.length - 1) + " autre(s) en attente. Utilisez le bouton \"Envoyer rappels SMS\" en haut pour tous.");
-  }
+  if (list.length > 1) showToast("<i class='fas fa-comment-sms' style='color:var(--sms);margin-right:8px;'></i>SMS ouvert pour " + esc(first.patient) + ". " + (list.length - 1) + " autre(s) en attente.");
 }
 
 function openMassModal() {
   const now = new Date();
   const list = document.getElementById("massList");
   list.innerHTML = "";
-
-  const avenirAvecTel = rdvs.filter(r => {
+  const avecTel = rdvs.filter(r => {
     const dt = new Date(r.date + "T" + r.heure);
-    const diff = (dt - now) / 36e5;
-    return diff >= 0 && r.telephone && cleanPhone(r.telephone);
+    return (dt - now) / 36e5 >= 0 && r.telephone && cleanPhone(r.telephone);
   }).sort((a, b) => (a.date + a.heure).localeCompare(b.date + b.heure));
 
-  if (avenirAvecTel.length === 0) {
-    list.innerHTML = '<div style="text-align:center; color:var(--muted); padding:24px 0;"><i class="fas fa-inbox" style="font-size:1.3rem; display:block; margin-bottom:8px; opacity:0.4;"></i>Aucun rendez-vous a venir avec un numero de telephone.</div>';
+  if (avecTel.length === 0) {
+    list.innerHTML = '<div style="text-align:center; color:var(--muted); padding:24px 0;"><i class="fas fa-inbox" style="font-size:1.3rem; display:block; margin-bottom:8px; opacity:0.4;"></i>Aucun RDV a venir avec un numero.</div>';
     document.getElementById("massModal").classList.add("active");
     return;
   }
-
-  avenirAvecTel.forEach((r, idx) => {
+  avecTel.forEach(r => {
     const msg = genMessage(r);
     const sl = smsLink(r.telephone, msg);
     const wl = waLink(r.telephone, msg);
     list.innerHTML += '<div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 14px; background:var(--card-alt); border-radius:10px; flex-wrap:wrap;">'
-      + '<div>'
-      + '<div style="font-weight:600; font-size:0.88rem;">' + esc(r.patient) + '</div>'
+      + '<div><div style="font-weight:600; font-size:0.88rem;">' + esc(r.patient) + '</div>'
       + '<div style="color:var(--muted); font-size:0.8rem;">' + r.date + ' a ' + r.heure + (r.motif ? ' — ' + esc(r.motif) : '') + '</div>'
-      + '<div style="color:var(--muted); font-size:0.78rem;">' + esc(r.telephone) + '</div>'
-      + '</div>'
+      + '<div style="color:var(--muted); font-size:0.78rem;">' + esc(r.telephone) + '</div></div>'
       + '<div class="action-btns">'
       + (sl ? '<a href="' + sl + '" target="_blank" class="btn-sms" style="padding:6px 12px;"><i class="fas fa-comment-sms"></i> SMS</a>' : '')
       + (wl ? '<a href="' + wl + '" target="_blank" class="btn-wa" style="padding:6px 12px;"><i class="fab fa-whatsapp"></i> WhatsApp</a>' : '')
       + '</div></div>';
   });
-
   document.getElementById("massModal").classList.add("active");
 }
 
-function closeMassModal() {
-  document.getElementById("massModal").classList.remove("active");
-}
+function closeMassModal() { document.getElementById("massModal").classList.remove("active"); }
 
 function envoyerMassSMS() {
   const links = document.querySelectorAll("#massList .btn-sms");
-  if (links.length === 0) return;
-  links.forEach((a, i) => {
-    setTimeout(() => window.open(a.href, '_blank'), i * 500);
-  });
-  showToast("<i class='fas fa-comment-sms' style='color:var(--sms);margin-right:8px;'></i>" + links.length + " fenetre(s) SMS ouverte(s).");
+  links.forEach((a, i) => setTimeout(() => window.open(a.href, '_blank'), i * 500));
+  if (links.length) showToast("<i class='fas fa-comment-sms' style='color:var(--sms);margin-right:8px;'></i>" + links.length + " fenetre(s) SMS ouverte(s).");
 }
 
 function envoyerMassWA() {
   const links = document.querySelectorAll("#massList .btn-wa");
-  if (links.length === 0) return;
-  links.forEach((a, i) => {
-    setTimeout(() => window.open(a.href, '_blank'), i * 500);
-  });
-  showToast("<i class='fab fa-whatsapp' style='color:var(--whatsapp);margin-right:8px;'></i>" + links.length + " fenetre(s) WhatsApp ouverte(s).");
+  links.forEach((a, i) => setTimeout(() => window.open(a.href, '_blank'), i * 500));
+  if (links.length) showToast("<i class='fab fa-whatsapp' style='color:var(--whatsapp);margin-right:8px;'></i>" + links.length + " fenetre(s) WhatsApp ouverte(s).");
 }
 
+/* ====== OVERLAY BLOQUANT ====== */
+function afficherBlock(urgents) {
+  const overlay = document.getElementById("blockOverlay");
+  const list = document.getElementById("blockList");
+  list.innerHTML = "";
+
+  urgents.forEach((r, idx) => {
+    const minR = Math.max(0, Math.round(r.diff * 60));
+    list.innerHTML += '<div class="block-rdv-item" style="animation-delay:' + (idx * 0.12) + 's;">'
+      + '<div class="block-rdv-name"><i class="fas fa-user" style="margin-right:8px; opacity:0.5;"></i>' + esc(r.patient) + '</div>'
+      + '<div class="block-rdv-detail">'
+      + '<i class="fas fa-calendar" style="margin-right:5px;"></i>' + formatDateFR(r.date) + ' a ' + r.heure
+      + (r.motif ? ' — ' + esc(r.motif) : '')
+      + (r.telephone ? ' — ' + esc(r.telephone) : '')
+      + '</div>'
+      + '<div class="block-rdv-time"><i class="fas fa-bolt" style="margin-right:4px;"></i>DANS ' + minR + ' MIN</div>'
+      + '</div>';
+  });
+
+  overlay.classList.add("active");
+}
+
+function fermerBlock() {
+  const overlay = document.getElementById("blockOverlay");
+  overlay.classList.remove("active");
+  /* Marquer les RDV actuels comme acquittés pour ne pas re-bloquer dans ce cycle */
+  const now = new Date();
+  rdvs.forEach((r, i) => {
+    const dt = new Date(r.date + "T" + r.heure);
+    const diff = (dt - now) / 36e5;
+    if (diff >= 0 && diff <= 0.5) {
+      blockDismissedFor[r.date + r.heure + r.patient] = true;
+    }
+  });
+  /* Son de validation */
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = 660;
+    osc.type = "sine";
+    gain.gain.value = 0.15;
+    osc.start();
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+    osc.stop(ctx.currentTime + 0.3);
+  } catch(e) {}
+}
+
+/* ====== AFFICHAGE PRINCIPAL ====== */
 function afficher() {
   const tb = document.getElementById("tbody");
   const rapp = document.getElementById("rappels");
@@ -653,11 +849,11 @@ function afficher() {
         + " <span style='color:var(--muted); font-size:0.84rem;'>" + r.date + " a " + r.heure + "</span></div>"
         + timeStr + "</div>"
         + (r.motif ? "<div style='color:var(--muted); font-size:0.82rem; margin-top:3px;'>" + esc(r.motif) + "</div>" : "")
-        + "<div style='margin-top:8px;'>" + msgButtons(r) + "</div>"
-        + "</div>";
+        + "<div style='margin-top:8px;'>" + msgButtons(r) + "</div></div>";
 
       if (isUrgent) urgents.push(r);
 
+      /* Notification navigateur */
       if ("Notification" in window && Notification.permission === "granted" && !r.notif && diff >= 0 && diff <= 0.5) {
         new Notification("Rappel RDV — 30 minutes", {
           body: r.patient + " a " + r.heure + (r.motif ? " (" + r.motif + ")" : ""),
@@ -669,6 +865,7 @@ function afficher() {
     }
   });
 
+  /* ====== Bannière non bloquante ====== */
   if (urgents.length > 0 && !notifClosed) {
     urgents.forEach((r, idx) => {
       notibarContent.innerHTML += '<div class="notif-item" style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.1); padding:10px 16px; border-radius:10px; animation-delay:' + (idx * 0.1) + 's;">'
@@ -676,9 +873,7 @@ function afficher() {
         + "<div style='flex:1;'>"
         + "<div style='font-weight:700; font-size:0.9rem;'>" + esc(r.patient) + " — " + r.heure + (r.telephone ? " — " + esc(r.telephone) : "") + "</div>"
         + (r.motif ? "<div style='opacity:0.8; font-size:0.81rem;'>" + esc(r.motif) + "</div>" : "")
-        + "</div>"
-        + msgButtons(r)
-        + "</div>";
+        + "</div>" + msgButtons(r) + "</div>";
     });
     notibar.classList.add("active");
   } else if (urgents.length === 0) {
@@ -690,6 +885,15 @@ function afficher() {
     rapp.innerHTML = '<div style="color:var(--muted); font-size:0.87rem; padding:8px 0;"><i class="fas fa-check" style="margin-right:6px; color:var(--accent);"></i>Aucun rendez-vous dans les prochaines 24 heures.</div>';
   }
 
+  /* ====== OVERLAY BLOQUANT ====== */
+  const nonDismissedUrgents = urgents.filter(r => !blockDismissedFor[r.date + r.heure + r.patient]);
+  if (nonDismissedUrgents.length > 0) {
+    afficherBlock(nonDismissedUrgents);
+    /* Son d'alerte */
+    playAlertSound();
+  }
+
+  /* Tableau */
   const data = currentTab === "avenir" ? avenir : historique;
   if (data.length === 0) {
     const msg = currentTab === "avenir" ? "Aucun rendez-vous a venir." : "Aucun rendez-vous passe.";
@@ -705,7 +909,6 @@ function afficher() {
         else if (r.diff <= 2) badge = '<span class="badge badge-soon"><i class="fas fa-clock" style="margin-right:3px;"></i>Bientôt</span>';
         else badge = '<span class="badge badge-ok"><i class="fas fa-check" style="margin-right:3px;"></i>A venir</span>';
       }
-
       tb.innerHTML += '<tr' + rowClass + '>'
         + "<td style='font-weight:600;'>" + esc(r.patient) + "</td>"
         + "<td style='font-size:0.83rem;'>" + formatPhone(r.telephone) + "</td>"
@@ -724,6 +927,26 @@ function afficher() {
   animCount("late", lateCount);
 }
 
+/* ====== Son d'alerte ====== */
+function playAlertSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    /* Double bip descendant */
+    [880, 660].forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = freq;
+      osc.type = "sine";
+      gain.gain.value = 0.18;
+      osc.start(ctx.currentTime + i * 0.25);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.25 + 0.22);
+      osc.stop(ctx.currentTime + i * 0.25 + 0.22);
+    });
+  } catch(e) {}
+}
+
 function animCount(id, val) {
   const el = document.getElementById(id);
   const prev = parseInt(el.textContent) || 0;
@@ -734,6 +957,7 @@ function animCount(id, val) {
   }
 }
 
+/* ====== Init ====== */
 const nowI = new Date();
 document.getElementById("date").value = nowI.getFullYear() + "-" + String(nowI.getMonth() + 1).padStart(2, "0") + "-" + String(nowI.getDate()).padStart(2, "0");
 
