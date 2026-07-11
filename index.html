@@ -21,6 +21,10 @@
     --danger-glow: rgba(220,38,38,0.08);
     --warn: #d97706;
     --warn-glow: rgba(217,119,6,0.08);
+    --sms: #2563eb;
+    --sms-glow: rgba(37,99,235,0.08);
+    --whatsapp: #25d366;
+    --whatsapp-glow: rgba(37,211,102,0.1);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -29,7 +33,6 @@
     color: var(--fg);
     min-height: 100vh;
   }
-  /* Fond subtil avec motif */
   body::before {
     content: '';
     position: fixed;
@@ -41,262 +44,190 @@
     z-index: 0;
     pointer-events: none;
   }
-
   .container { position: relative; z-index: 1; }
 
-  /* ====== Bannière notification rouge ====== */
+  /* Bannière rouge */
   #notibar {
     position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
     background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
     color: #fff;
-    max-height: 0;
-    overflow: hidden;
+    max-height: 0; overflow: hidden;
     transition: max-height 0.5s cubic-bezier(0.22,1,0.36,1), padding 0.5s cubic-bezier(0.22,1,0.36,1);
     box-shadow: 0 6px 40px rgba(220,38,38,0.35);
   }
-  #notibar.active { max-height: 400px; padding: 14px 24px; }
-  .notif-item { animation: slideNotif 0.35s ease-out both; }
-  @keyframes slideNotif {
-    from { opacity: 0; transform: translateX(-16px); }
-    to { opacity: 1; transform: translateX(0); }
-  }
+  #notibar.active { max-height: 500px; padding: 14px 24px; }
+  .notif-item { animation: slideN 0.35s ease-out both; }
+  @keyframes slideN { from { opacity:0; transform:translateX(-16px); } to { opacity:1; transform:translateX(0); } }
   .pulse-dot {
-    width: 10px; height: 10px;
-    background: #fff;
-    border-radius: 50%;
-    animation: pdot 1s ease-in-out infinite;
-    flex-shrink: 0;
+    width: 10px; height: 10px; background: #fff; border-radius: 50%;
+    animation: pdot 1s ease-in-out infinite; flex-shrink: 0;
   }
-  @keyframes pdot {
-    0%,100% { opacity:1; transform:scale(1); }
-    50% { opacity:0.3; transform:scale(0.6); }
-  }
+  @keyframes pdot { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.3;transform:scale(0.6);} }
 
-  /* ====== Cartes stats ====== */
+  /* Stats */
   .stat-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 20px 22px;
-    position: relative;
-    overflow: hidden;
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 20px 22px; position: relative; overflow: hidden;
     transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
   }
-  .stat-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
-    border-color: var(--accent);
-  }
+  .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.06); border-color: var(--accent); }
   .stat-icon {
-    width: 40px; height: 40px;
-    border-radius: 11px;
+    width: 40px; height: 40px; border-radius: 11px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
-    margin-bottom: 12px;
+    font-size: 16px; margin-bottom: 12px;
   }
   .stat-value { font-size: 1.9rem; font-weight: 900; line-height: 1; }
   .stat-label { color: var(--muted); font-size: 0.8rem; margin-top: 5px; font-weight: 500; }
   .stat-card::after {
-    content: '';
-    position: absolute;
-    top: -25px; right: -25px;
-    width: 80px; height: 80px;
-    border-radius: 50%;
-    opacity: 0.07;
+    content: ''; position: absolute; top: -25px; right: -25px;
+    width: 80px; height: 80px; border-radius: 50%; opacity: 0.07;
     transition: opacity 0.3s;
   }
   .stat-card:hover::after { opacity: 0.14; }
 
-  /* ====== Formulaire ====== */
-  .form-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 26px;
-  }
+  /* Formulaire */
+  .form-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 26px; }
   .form-input {
-    background: var(--card-alt);
-    border: 1px solid var(--border);
-    color: var(--fg);
-    padding: 11px 15px;
-    border-radius: 10px;
-    font-family: inherit;
-    font-size: 0.88rem;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    width: 100%;
+    background: var(--card-alt); border: 1px solid var(--border); color: var(--fg);
+    padding: 11px 15px; border-radius: 10px; font-family: inherit; font-size: 0.88rem;
+    outline: none; transition: border-color 0.2s, box-shadow 0.2s; width: 100%;
   }
-  .form-input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-glow);
-  }
+  .form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
   .form-input::placeholder { color: #b0b6c4; }
+  .form-input.error { border-color: var(--danger); box-shadow: 0 0 0 3px var(--danger-glow); }
   .btn-add {
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    padding: 11px 22px;
-    border-radius: 10px;
-    font-family: inherit;
-    font-weight: 700;
-    font-size: 0.88rem;
-    cursor: pointer;
-    transition: transform 0.15s, box-shadow 0.2s;
-    white-space: nowrap;
+    background: var(--accent); color: #fff; border: none; padding: 11px 22px;
+    border-radius: 10px; font-family: inherit; font-weight: 700; font-size: 0.88rem;
+    cursor: pointer; transition: transform 0.15s, box-shadow 0.2s; white-space: nowrap;
   }
   .btn-add:hover { transform: scale(1.03); box-shadow: 0 4px 16px var(--accent-glow); }
   .btn-add:active { transform: scale(0.97); }
 
-  /* ====== Sections ====== */
-  .section-title {
-    font-size: 1.1rem; font-weight: 700;
-    display: flex; align-items: center; gap: 10px;
-  }
+  /* Sections */
+  .section-title { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
   .icon-circle {
-    width: 32px; height: 32px;
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px;
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; font-size: 13px;
   }
 
-  /* ====== Tableau ====== */
-  .table-wrap {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    overflow: hidden;
-  }
+  /* Tableau */
+  .table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
   table { width: 100%; border-collapse: collapse; }
   thead th {
-    background: var(--card-alt);
-    color: var(--muted);
-    font-weight: 600;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 13px 16px;
-    text-align: left;
-    border-bottom: 1px solid var(--border);
+    background: var(--card-alt); color: var(--muted); font-weight: 600;
+    font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
+    padding: 13px 14px; text-align: left; border-bottom: 1px solid var(--border);
   }
   tbody td {
-    padding: 13px 16px;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.88rem;
-    vertical-align: middle;
+    padding: 13px 14px; border-bottom: 1px solid var(--border);
+    font-size: 0.87rem; vertical-align: middle;
   }
   tbody tr { transition: background 0.15s; }
   tbody tr:hover { background: rgba(0,0,0,0.015); }
   tbody tr:last-child td { border-bottom: none; }
 
-  .badge {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 0.73rem;
-    font-weight: 600;
-  }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.73rem; font-weight: 600; }
   .badge-soon { background: var(--warn-glow); color: var(--warn); }
   .badge-late { background: var(--danger-glow); color: var(--danger); }
   .badge-ok { background: var(--accent-glow); color: var(--accent); }
   .badge-passed { background: #f1f3f6; color: var(--muted); }
 
   .btn-del {
-    background: var(--danger-glow);
-    color: var(--danger);
-    border: 1px solid rgba(220,38,38,0.15);
-    padding: 5px 13px;
-    border-radius: 8px;
-    font-family: inherit;
-    font-size: 0.78rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.15s;
+    background: var(--danger-glow); color: var(--danger);
+    border: 1px solid rgba(220,38,38,0.15); padding: 5px 12px; border-radius: 8px;
+    font-family: inherit; font-size: 0.76rem; font-weight: 600; cursor: pointer; transition: all 0.15s;
   }
   .btn-del:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
 
-  /* ====== Rappels ====== */
-  .rappel-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 13px 16px;
-    transition: border-color 0.2s;
+  /* Boutons SMS / WhatsApp */
+  .btn-sms {
+    background: var(--sms-glow); color: var(--sms);
+    border: 1px solid rgba(37,99,235,0.15); padding: 5px 10px; border-radius: 8px;
+    font-family: inherit; font-size: 0.76rem; font-weight: 600; cursor: pointer;
+    transition: all 0.15s; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;
   }
-  .rappel-card.urgent {
-    border-color: rgba(220,38,38,0.35);
-    background: linear-gradient(135deg, rgba(220,38,38,0.04), var(--card));
+  .btn-sms:hover { background: var(--sms); color: #fff; border-color: var(--sms); }
+  .btn-wa {
+    background: var(--whatsapp-glow); color: var(--whatsapp);
+    border: 1px solid rgba(37,211,102,0.15); padding: 5px 10px; border-radius: 8px;
+    font-family: inherit; font-size: 0.76rem; font-weight: 600; cursor: pointer;
+    transition: all 0.15s; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;
   }
+  .btn-wa:hover { background: var(--whatsapp); color: #fff; border-color: var(--whatsapp); }
 
-  /* ====== Onglets ====== */
-  .tabs {
-    display: flex; gap: 3px;
-    background: #eef0f4;
-    border-radius: 10px;
-    padding: 3px;
-    width: fit-content;
+  .action-btns { display: flex; gap: 5px; flex-wrap: wrap; }
+
+  /* Rappels */
+  .rappel-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 13px 16px; transition: border-color 0.2s;
   }
+  .rappel-card.urgent { border-color: rgba(220,38,38,0.35); background: linear-gradient(135deg, rgba(220,38,38,0.04), var(--card)); }
+
+  /* Onglets */
+  .tabs { display: flex; gap: 3px; background: #eef0f4; border-radius: 10px; padding: 3px; width: fit-content; }
   .tab-btn {
-    background: none; border: none;
-    color: var(--muted);
-    font-family: inherit; font-size: 0.83rem; font-weight: 600;
-    padding: 7px 18px; border-radius: 8px;
+    background: none; border: none; color: var(--muted); font-family: inherit;
+    font-size: 0.83rem; font-weight: 600; padding: 7px 18px; border-radius: 8px;
     cursor: pointer; transition: all 0.2s;
   }
-  .tab-btn.active {
-    background: var(--card);
-    color: var(--fg);
-    box-shadow: 0 1px 6px rgba(0,0,0,0.08);
-  }
+  .tab-btn.active { background: var(--card); color: var(--fg); box-shadow: 0 1px 6px rgba(0,0,0,0.08); }
   .tab-btn:hover:not(.active) { color: var(--fg); }
-
   .hist-row td { color: var(--muted); }
 
-  /* ====== Toast ====== */
+  /* Toast */
   .toast {
     position: fixed; bottom: 24px; right: 24px; z-index: 999;
-    background: var(--card);
-    border: 1px solid var(--border);
-    color: var(--fg);
-    padding: 13px 20px;
-    border-radius: 12px;
-    font-size: 0.86rem;
+    background: var(--card); border: 1px solid var(--border); color: var(--fg);
+    padding: 13px 20px; border-radius: 12px; font-size: 0.86rem;
     box-shadow: 0 8px 30px rgba(0,0,0,0.1);
-    transform: translateY(100px);
-    opacity: 0;
+    transform: translateY(100px); opacity: 0;
     transition: all 0.4s cubic-bezier(0.22,1,0.36,1);
+    max-width: 360px;
   }
   .toast.show { transform: translateY(0); opacity: 1; }
 
-  /* ====== Animations ====== */
-  .fade-up { animation: fadeUp 0.45s ease-out both; }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(18px); }
-    to { opacity: 1; transform: translateY(0); }
+  /* Modal envoi en masse */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 1100;
+    background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
+    display: none; align-items: center; justify-content: center;
+    animation: fadeIn 0.2s ease-out;
   }
+  .modal-overlay.active { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal-box {
+    background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+    padding: 32px; max-width: 500px; width: 90%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    animation: modalUp 0.3s cubic-bezier(0.22,1,0.36,1);
+  }
+  @keyframes modalUp { from { opacity:0; transform:translateY(20px) scale(0.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+
+  /* Animations */
+  .fade-up { animation: fadeUp 0.45s ease-out both; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
   .count-animate { transition: transform 0.3s cubic-bezier(0.22,1,0.36,1); }
   .count-animate.bump { transform: scale(1.18); }
-  .empty-row td {
-    text-align: center; color: var(--muted);
-    padding: 36px 16px; font-style: italic;
-  }
+  .empty-row td { text-align: center; color: var(--muted); padding: 36px 16px; font-style: italic; }
 
-  /* Scrollbar */
+  .no-phone { color: var(--muted); font-size: 0.75rem; font-style: italic; }
+
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #d1d5de; border-radius: 3px; }
 
-  /* Responsive */
   @media (max-width: 768px) {
     .stat-value { font-size: 1.4rem; }
     .form-grid { grid-template-columns: 1fr !important; }
     .table-wrap { overflow-x: auto; }
-    table { min-width: 560px; }
+    table { min-width: 700px; }
   }
 </style>
 </head>
 <body>
 
-<!-- Bannière notification rouge -->
+<!-- Bannière rouge -->
 <div id="notibar">
   <div class="max-w-6xl mx-auto flex items-center gap-3 mb-2">
     <div class="pulse-dot"></div>
@@ -308,17 +239,49 @@
   <div id="notibar-content" class="max-w-6xl mx-auto space-y-2"></div>
 </div>
 
+<!-- Modal envoi en masse -->
+<div id="massModal" class="modal-overlay" onclick="if(event.target===this)closeMassModal()">
+  <div class="modal-box">
+    <div class="flex items-center justify-between mb-5">
+      <div class="section-title">
+        <div class="icon-circle" style="background:var(--sms-glow); color:var(--sms);"><i class="fas fa-paper-plane"></i></div>
+        Envoyer rappels en masse
+      </div>
+      <button onclick="closeMassModal()" style="background:none; border:none; color:var(--muted); cursor:pointer; font-size:18px; padding:4px;">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <p style="color:var(--muted); font-size:0.87rem; margin-bottom:16px;">
+      Ouvrir les applications de messagerie pour chaque rendez-vous à venir ayant un numéro de téléphone.
+    </p>
+    <div id="massList" class="space-y-3" style="max-height:300px; overflow-y:auto;"></div>
+    <div class="flex gap-3 mt-6">
+      <button onclick="envoyerMassSMS()" class="btn-sms" style="padding:10px 20px; font-size:0.85rem; border-radius:10px; flex:1; justify-content:center;">
+        <i class="fas fa-comment-sms"></i> Ouvrir SMS pour tous
+      </button>
+      <button onclick="envoyerMassWA()" class="btn-wa" style="padding:10px 20px; font-size:0.85rem; border-radius:10px; flex:1; justify-content:center;">
+        <i class="fab fa-whatsapp"></i> Ouvrir WhatsApp pour tous
+      </button>
+    </div>
+  </div>
+</div>
+
 <div class="container max-w-6xl mx-auto px-5 py-8">
 
   <!-- En-tête -->
-  <header class="flex items-center gap-4 mb-8 fade-up">
-    <div style="width:48px; height:48px; background:var(--accent-glow); border:1px solid rgba(13,150,104,0.2); border-radius:14px; display:flex; align-items:center; justify-content:center;">
-      <i class="fas fa-calendar-check" style="color:var(--accent); font-size:20px;"></i>
+  <header class="flex flex-wrap items-center justify-between gap-4 mb-8 fade-up">
+    <div class="flex items-center gap-4">
+      <div style="width:48px; height:48px; background:var(--accent-glow); border:1px solid rgba(13,150,104,0.2); border-radius:14px; display:flex; align-items:center; justify-content:center;">
+        <i class="fas fa-calendar-check" style="color:var(--accent); font-size:20px;"></i>
+      </div>
+      <div>
+        <h1 style="font-size:1.65rem; font-weight:900; letter-spacing:-0.02em;">Gestion des Rendez-vous</h1>
+        <p style="color:var(--muted); font-size:0.84rem; margin-top:2px;" id="dateNow"></p>
+      </div>
     </div>
-    <div>
-      <h1 style="font-size:1.65rem; font-weight:900; letter-spacing:-0.02em; color:var(--fg);">Gestion des Rendez-vous</h1>
-      <p style="color:var(--muted); font-size:0.84rem; margin-top:2px;" id="dateNow"></p>
-    </div>
+    <button onclick="openMassModal()" class="btn-sms" style="padding:10px 20px; font-size:0.85rem; border-radius:10px;">
+      <i class="fas fa-paper-plane"></i> Envoyer rappels SMS
+    </button>
   </header>
 
   <!-- Stats -->
@@ -336,10 +299,10 @@
       <div style="position:absolute;top:-25px;right:-25px;width:80px;height:80px;border-radius:50%;background:var(--warn);"></div>
     </div>
     <div class="stat-card fade-up" style="animation-delay:0.15s">
-      <div class="stat-icon" style="background:rgba(37,99,235,0.08); color:#2563eb;"><i class="fas fa-clock"></i></div>
-      <div class="stat-value count-animate" id="soon" style="color:#2563eb;">0</div>
+      <div class="stat-icon" style="background:var(--sms-glow); color:var(--sms);"><i class="fas fa-clock"></i></div>
+      <div class="stat-value count-animate" id="soon" style="color:var(--sms);">0</div>
       <div class="stat-label">A venir (24h)</div>
-      <div style="position:absolute;top:-25px;right:-25px;width:80px;height:80px;border-radius:50%;background:#2563eb;"></div>
+      <div style="position:absolute;top:-25px;right:-25px;width:80px;height:80px;border-radius:50%;background:var(--sms);"></div>
     </div>
     <div class="stat-card fade-up" style="animation-delay:0.2s">
       <div class="stat-icon" style="background:var(--danger-glow); color:var(--danger);"><i class="fas fa-exclamation-triangle"></i></div>
@@ -355,10 +318,14 @@
       <div class="icon-circle" style="background:var(--accent-glow); color:var(--accent);"><i class="fas fa-plus"></i></div>
       Nouveau rendez-vous
     </div>
-    <div class="form-grid" style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr auto; gap:12px; align-items:end;">
+    <div class="form-grid" style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr 1fr auto; gap:12px; align-items:end;">
       <div>
         <label style="font-size:0.72rem; color:var(--muted); font-weight:600; display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:0.04em;">Patient *</label>
         <input id="patient" class="form-input" placeholder="Nom du patient">
+      </div>
+      <div>
+        <label style="font-size:0.72rem; color:var(--muted); font-weight:600; display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:0.04em;">Telephone *</label>
+        <input id="telephone" class="form-input" type="tel" placeholder="+33 6 12 34 56 78">
       </div>
       <div>
         <label style="font-size:0.72rem; color:var(--muted); font-weight:600; display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:0.04em;">Motif</label>
@@ -380,14 +347,19 @@
 
   <!-- Rappels -->
   <div class="form-card mb-7 fade-up" style="animation-delay:0.3s; border-color:rgba(217,119,6,0.25); background:linear-gradient(135deg, rgba(217,119,6,0.03), var(--card));">
-    <div class="section-title mb-4">
-      <div class="icon-circle" style="background:var(--warn-glow); color:var(--warn);"><i class="fas fa-bell"></i></div>
-      Rappels (24 prochaines heures)
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+      <div class="section-title">
+        <div class="icon-circle" style="background:var(--warn-glow); color:var(--warn);"><i class="fas fa-bell"></i></div>
+        Rappels (24 prochaines heures)
+      </div>
+      <button onclick="envoyerRappelsRapide()" class="btn-sms" style="padding:6px 14px; font-size:0.78rem; border-radius:8px;">
+        <i class="fas fa-bolt"></i> Rappeler tous par SMS
+      </button>
     </div>
     <div id="rappels" class="space-y-3"></div>
   </div>
 
-  <!-- Tableau avec onglets -->
+  <!-- Tableau -->
   <div class="fade-up" style="animation-delay:0.35s">
     <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
       <div class="section-title">
@@ -404,11 +376,12 @@
         <thead>
           <tr>
             <th>Patient</th>
+            <th>Telephone</th>
             <th>Motif</th>
             <th>Date</th>
             <th>Heure</th>
             <th>Statut</th>
-            <th>Action</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody id="tbody"></tbody>
@@ -418,11 +391,9 @@
 
 </div>
 
-<!-- Toast -->
 <div id="toast" class="toast"></div>
 
 <script>
-/* ====== Données ====== */
 let rdvs = JSON.parse(localStorage.getItem("rdvs") || "[]");
 let currentTab = "avenir";
 
@@ -430,11 +401,9 @@ if ("Notification" in window && Notification.permission !== "granted") {
   Notification.requestPermission();
 }
 
-function save() {
-  localStorage.setItem("rdvs", JSON.stringify(rdvs));
-}
+function save() { localStorage.setItem("rdvs", JSON.stringify(rdvs)); }
 
-/* ====== Affichage date ====== */
+/* Date affichée */
 function setDateNow() {
   const now = new Date();
   const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -447,24 +416,96 @@ function setDateNow() {
 setDateNow();
 setInterval(setDateNow, 30000);
 
+/* ====== Nettoyer numéro ====== */
+function cleanPhone(tel) {
+  if (!tel) return "";
+  /* Supprime tout sauf chiffres et + */
+  let c = tel.replace(/[^\d+]/g, "");
+  /* Si commence par 0 (france), remplacer par +33 */
+  if (c.startsWith("0") && c.length >= 10) {
+    c = "+33" + c.substring(1);
+  }
+  /* Si pas de + et 10 chiffres, ajouter +33 */
+  if (!c.startsWith("+") && c.length === 10 && c.startsWith("0")) {
+    c = "+33" + c.substring(1);
+  }
+  return c;
+}
+
+/* ====== Formater pour affichage ====== */
+function formatPhone(tel) {
+  if (!tel) return "—";
+  /* Garder l'original tel quel pour l'affichage */
+  return esc(tel);
+}
+
+/* ====== Générer le message de rappel ====== */
+function genMessage(r) {
+  const dateFr = formatDateFR(r.date);
+  return "Rappel de rendez-vous : " + r.patient + " le " + dateFr + " a " + r.heure + "." + (r.motif ? " Motif : " + r.motif + "." : "") + " Merci de confirmer votre presence.";
+}
+
+/* ====== Formater date en français ====== */
+function formatDateFR(dateStr) {
+  const parts = dateStr.split("-");
+  const mois = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+  return parseInt(parts[2]) + " " + mois[parseInt(parts[1]) - 1] + " " + parts[0];
+}
+
+/* ====== Liens SMS et WhatsApp ====== */
+function smsLink(phone, msg) {
+  const p = cleanPhone(phone);
+  if (!p) return null;
+  return "sms:" + p + "?body=" + encodeURIComponent(msg);
+}
+
+function waLink(phone, msg) {
+  const p = cleanPhone(phone);
+  if (!p) return null;
+  /* WhatsApp nécessite le numéro sans le + */
+  let num = p.replace("+", "");
+  return "https://wa.me/" + num + "?text=" + encodeURIComponent(msg);
+}
+
 /* ====== Ajouter ====== */
 function ajouter() {
-  const p = document.getElementById("patient").value.trim();
-  const m = document.getElementById("motif").value.trim();
-  const d = document.getElementById("date").value;
-  const h = document.getElementById("heure").value;
-  if (!p || !d || !h) {
-    showToast("<i class='fas fa-exclamation-circle' style='color:var(--warn);margin-right:8px;'></i>Complétez les champs obligatoires (Patient, Date, Heure).");
+  const pEl = document.getElementById("patient");
+  const tEl = document.getElementById("telephone");
+  const mEl = document.getElementById("motif");
+  const dEl = document.getElementById("date");
+  const hEl = document.getElementById("heure");
+
+  const p = pEl.value.trim();
+  const t = tEl.value.trim();
+  const m = mEl.value.trim();
+  const d = dEl.value;
+  const h = hEl.value;
+
+  /* Validation visuelle */
+  let hasError = false;
+  [pEl, tEl, dEl, hEl].forEach(el => el.classList.remove("error"));
+  if (!p) { pEl.classList.add("error"); hasError = true; }
+  if (!t) { tEl.classList.add("error"); hasError = true; }
+  if (!d) { dEl.classList.add("error"); hasError = true; }
+  if (!h) { hEl.classList.add("error"); hasError = true; }
+
+  if (hasError) {
+    showToast("<i class='fas fa-exclamation-circle' style='color:var(--danger);margin-right:8px;'></i>Complétez les champs obligatoires (Patient, Telephone, Date, Heure).");
     return;
   }
-  rdvs.push({ patient: p, motif: m, date: d, heure: h, notif: false });
+
+  rdvs.push({ patient: p, telephone: t, motif: m, date: d, heure: h, notif: false });
   save();
-  document.getElementById("patient").value = "";
-  document.getElementById("motif").value = "";
-  document.getElementById("heure").value = "";
+  pEl.value = ""; tEl.value = ""; mEl.value = ""; hEl.value = "";
+  [pEl, tEl, dEl, hEl].forEach(el => el.classList.remove("error"));
   afficher();
   showToast("<i class='fas fa-check-circle' style='color:var(--accent);margin-right:8px;'></i>Rendez-vous ajouté avec succès.");
 }
+
+/* Retirer erreur au focus */
+document.addEventListener("input", function(e) {
+  if (e.target.classList.contains("form-input")) e.target.classList.remove("error");
+});
 
 /* ====== Supprimer ====== */
 function supprimer(i) {
@@ -489,12 +530,9 @@ function switchTab(tab, btn) {
   afficher();
 }
 
-/* ====== Bannière notification ====== */
+/* ====== Bannière ====== */
 let notifClosed = false;
-function fermerNotif() {
-  notifClosed = true;
-  document.getElementById("notibar").classList.remove("active");
-}
+function fermerNotif() { notifClosed = true; document.getElementById("notibar").classList.remove("active"); }
 
 /* ====== Toast ====== */
 function showToast(html) {
@@ -502,7 +540,108 @@ function showToast(html) {
   t.innerHTML = html;
   t.classList.add("show");
   clearTimeout(t._timer);
-  t._timer = setTimeout(() => t.classList.remove("show"), 3000);
+  t._timer = setTimeout(() => t.classList.remove("show"), 3500);
+}
+
+/* ====== Boutons SMS / WA dans les rappels et tableau ====== */
+function msgButtons(r) {
+  const msg = genMessage(r);
+  const sl = smsLink(r.telephone, msg);
+  const wl = waLink(r.telephone, msg);
+  let html = '<div class="action-btns">';
+  if (sl) {
+    html += '<a href="' + sl + '" class="btn-sms" title="Envoyer un SMS"><i class="fas fa-comment-sms"></i> SMS</a>';
+  }
+  if (wl) {
+    html += '<a href="' + wl + '" target="_blank" class="btn-wa" title="Envoyer par WhatsApp"><i class="fab fa-whatsapp"></i> WA</a>';
+  }
+  if (!sl && !wl) {
+    html += '<span class="no-phone"><i class="fas fa-phone-slash" style="margin-right:3px;"></i>Pas de numero</span>';
+  }
+  html += '</div>';
+  return html;
+}
+
+/* ====== Envoyer rappels rapides (section rappels) ====== */
+function envoyerRappelsRapide() {
+  const now = new Date();
+  const avenirAvecTel = rdvs.filter(r => {
+    const dt = new Date(r.date + "T" + r.heure);
+    const diff = (dt - now) / 36e5;
+    return diff >= 0 && diff <= 24 && r.telephone && cleanPhone(r.telephone);
+  });
+  if (avenirAvecTel.length === 0) {
+    showToast("<i class='fas fa-info-circle' style='color:var(--sms);margin-right:8px;'></i>Aucun rendez-vous avec numero dans les 24h.");
+    return;
+  }
+  /* Ouvrir le premier SMS, puis informer l'utilisateur */
+  const first = avenirAvecTel[0];
+  const msg = genMessage(first);
+  const link = smsLink(first.telephone, msg);
+  if (link) window.open(link, '_blank');
+  if (avenirAvecTel.length > 1) {
+    showToast("<i class='fas fa-comment-sms' style='color:var(--sms);margin-right:8px;'></i>SMS ouvert pour " + esc(first.patient) + ". " + (avenirAvecTel.length - 1) + " autre(s) en attente. Utilisez le bouton \"Envoyer rappels SMS\" en haut pour tous.");
+  }
+}
+
+/* ====== Modal envoi en masse ====== */
+function openMassModal() {
+  const now = new Date();
+  const list = document.getElementById("massList");
+  list.innerHTML = "";
+
+  const avenirAvecTel = rdvs.filter(r => {
+    const dt = new Date(r.date + "T" + r.heure);
+    const diff = (dt - now) / 36e5;
+    return diff >= 0 && r.telephone && cleanPhone(r.telephone);
+  }).sort((a, b) => (a.date + a.heure).localeCompare(b.date + b.heure));
+
+  if (avenirAvecTel.length === 0) {
+    list.innerHTML = '<div style="text-align:center; color:var(--muted); padding:24px 0;"><i class="fas fa-inbox" style="font-size:1.3rem; display:block; margin-bottom:8px; opacity:0.4;"></i>Aucun rendez-vous a venir avec un numero de telephone.</div>';
+    document.getElementById("massModal").classList.add("active");
+    return;
+  }
+
+  avenirAvecTel.forEach((r, idx) => {
+    const msg = genMessage(r);
+    const sl = smsLink(r.telephone, msg);
+    const wl = waLink(r.telephone, msg);
+    list.innerHTML += '<div style="display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 14px; background:var(--card-alt); border-radius:10px; flex-wrap:wrap;">'
+      + '<div>'
+      + '<div style="font-weight:600; font-size:0.88rem;">' + esc(r.patient) + '</div>'
+      + '<div style="color:var(--muted); font-size:0.8rem;">' + r.date + ' a ' + r.heure + (r.motif ? ' — ' + esc(r.motif) : '') + '</div>'
+      + '<div style="color:var(--muted); font-size:0.78rem;">' + esc(r.telephone) + '</div>'
+      + '</div>'
+      + '<div class="action-btns">'
+      + (sl ? '<a href="' + sl + '" target="_blank" class="btn-sms" style="padding:6px 12px;"><i class="fas fa-comment-sms"></i> SMS</a>' : '')
+      + (wl ? '<a href="' + wl + '" target="_blank" class="btn-wa" style="padding:6px 12px;"><i class="fab fa-whatsapp"></i> WhatsApp</a>' : '')
+      + '</div></div>';
+  });
+
+  document.getElementById("massModal").classList.add("active");
+}
+
+function closeMassModal() {
+  document.getElementById("massModal").classList.remove("active");
+}
+
+function envoyerMassSMS() {
+  const links = document.querySelectorAll("#massList .btn-sms");
+  if (links.length === 0) return;
+  /* Ouvrir chaque lien avec un petit délai */
+  links.forEach((a, i) => {
+    setTimeout(() => window.open(a.href, '_blank'), i * 500);
+  });
+  showToast("<i class='fas fa-comment-sms' style='color:var(--sms);margin-right:8px;'></i>" + links.length + " fenetre(s) SMS ouverte(s).");
+}
+
+function envoyerMassWA() {
+  const links = document.querySelectorAll("#massList .btn-wa");
+  if (links.length === 0) return;
+  links.forEach((a, i) => {
+    setTimeout(() => window.open(a.href, '_blank'), i * 500);
+  });
+  showToast("<i class='fab fa-whatsapp' style='color:var(--whatsapp);margin-right:8px;'></i>" + links.length + " fenetre(s) WhatsApp ouverte(s).");
 }
 
 /* ====== Affichage principal ====== */
@@ -517,7 +656,6 @@ function afficher() {
 
   let total = rdvs.length, todayCount = 0, soonCount = 0, lateCount = 0;
   const now = new Date();
-
   const y = now.getFullYear();
   const mo = String(now.getMonth() + 1).padStart(2, "0");
   const da = String(now.getDate()).padStart(2, "0");
@@ -538,18 +676,13 @@ function afficher() {
     if (diff < 0) lateCount++;
 
     const entry = { ...r, diff, index: i };
-    if (diff < 0) {
-      historique.push(entry);
-    } else {
-      avenir.push(entry);
-    }
+    if (diff < 0) { historique.push(entry); } else { avenir.push(entry); }
 
     /* Rappels 24h */
     if (diff >= 0 && diff <= 24) {
       const minR = Math.round(diff * 60);
       let timeStr = "";
       let isUrgent = false;
-
       if (diff <= 0.5) {
         timeStr = "<span style='color:#dc2626; font-weight:800; font-size:0.81rem;'>DANS " + minR + " MIN</span>";
         isUrgent = true;
@@ -562,9 +695,10 @@ function afficher() {
       rapp.innerHTML += '<div class="rappel-card' + (isUrgent ? ' urgent' : '') + '">'
         + "<div style='display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;'>"
         + "<div><b style='font-size:0.93rem;'>" + esc(r.patient) + "</b>"
-        + " <span style='color:var(--muted); font-size:0.84rem;'>" + r.date + " à " + r.heure + "</span></div>"
+        + " <span style='color:var(--muted); font-size:0.84rem;'>" + r.date + " a " + r.heure + "</span></div>"
         + timeStr + "</div>"
         + (r.motif ? "<div style='color:var(--muted); font-size:0.82rem; margin-top:3px;'>" + esc(r.motif) + "</div>" : "")
+        + "<div style='margin-top:8px;'>" + msgButtons(r) + "</div>"
         + "</div>";
 
       if (isUrgent) urgents.push(r);
@@ -572,7 +706,7 @@ function afficher() {
       /* Notification navigateur */
       if ("Notification" in window && Notification.permission === "granted" && !r.notif && diff >= 0 && diff <= 0.5) {
         new Notification("Rappel RDV — 30 minutes", {
-          body: r.patient + " à " + r.heure + (r.motif ? " (" + r.motif + ")" : ""),
+          body: r.patient + " a " + r.heure + (r.motif ? " (" + r.motif + ")" : ""),
           icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔔</text></svg>"
         });
         r.notif = true;
@@ -586,10 +720,12 @@ function afficher() {
     urgents.forEach((r, idx) => {
       notibarContent.innerHTML += '<div class="notif-item" style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.1); padding:10px 16px; border-radius:10px; animation-delay:' + (idx * 0.1) + 's;">'
         + "<i class='fas fa-circle-exclamation' style='font-size:1.05rem; flex-shrink:0;'></i>"
-        + "<div>"
-        + "<div style='font-weight:700; font-size:0.9rem;'>" + esc(r.patient) + " — " + r.heure + "</div>"
+        + "<div style='flex:1;'>"
+        + "<div style='font-weight:700; font-size:0.9rem;'>" + esc(r.patient) + " — " + r.heure + (r.telephone ? " — " + esc(r.telephone) : "") + "</div>"
         + (r.motif ? "<div style='opacity:0.8; font-size:0.81rem;'>" + esc(r.motif) + "</div>" : "")
-        + "</div></div>";
+        + "</div>"
+        + msgButtons(r)
+        + "</div>";
     });
     notibar.classList.add("active");
   } else if (urgents.length === 0) {
@@ -601,43 +737,35 @@ function afficher() {
     rapp.innerHTML = '<div style="color:var(--muted); font-size:0.87rem; padding:8px 0;"><i class="fas fa-check" style="margin-right:6px; color:var(--accent);"></i>Aucun rendez-vous dans les prochaines 24 heures.</div>';
   }
 
-  /* Tableau selon onglet */
+  /* Tableau */
   const data = currentTab === "avenir" ? avenir : historique;
-
   if (data.length === 0) {
-    const msg = currentTab === "avenir"
-      ? "Aucun rendez-vous à venir."
-      : "Aucun rendez-vous passé.";
-    tb.innerHTML = '<tr class="empty-row"><td colspan="6"><i class="fas fa-inbox" style="font-size:1.3rem; display:block; margin-bottom:8px; opacity:0.35;"></i>' + msg + '</td></tr>';
+    const msg = currentTab === "avenir" ? "Aucun rendez-vous a venir." : "Aucun rendez-vous passe.";
+    tb.innerHTML = '<tr class="empty-row"><td colspan="7"><i class="fas fa-inbox" style="font-size:1.3rem; display:block; margin-bottom:8px; opacity:0.35;"></i>' + msg + '</td></tr>';
   } else {
     data.forEach(r => {
-      let badge = "";
-      let rowClass = "";
+      let badge = "", rowClass = "";
       if (currentTab === "historique") {
         rowClass = ' class="hist-row"';
         badge = '<span class="badge badge-passed"><i class="fas fa-check" style="margin-right:3px;"></i>Passé</span>';
       } else {
-        if (r.diff <= 0.5) {
-          badge = '<span class="badge badge-late"><i class="fas fa-bolt" style="margin-right:3px;"></i>Imminent</span>';
-        } else if (r.diff <= 2) {
-          badge = '<span class="badge badge-soon"><i class="fas fa-clock" style="margin-right:3px;"></i>Bientôt</span>';
-        } else {
-          badge = '<span class="badge badge-ok"><i class="fas fa-check" style="margin-right:3px;"></i>A venir</span>';
-        }
+        if (r.diff <= 0.5) badge = '<span class="badge badge-late"><i class="fas fa-bolt" style="margin-right:3px;"></i>Imminent</span>';
+        else if (r.diff <= 2) badge = '<span class="badge badge-soon"><i class="fas fa-clock" style="margin-right:3px;"></i>Bientôt</span>';
+        else badge = '<span class="badge badge-ok"><i class="fas fa-check" style="margin-right:3px;"></i>A venir</span>';
       }
 
       tb.innerHTML += '<tr' + rowClass + '>'
         + "<td style='font-weight:600;'>" + esc(r.patient) + "</td>"
+        + "<td style='font-size:0.83rem;'>" + formatPhone(r.telephone) + "</td>"
         + "<td style='color:var(--muted);'>" + (esc(r.motif) || "—") + "</td>"
         + "<td>" + r.date + "</td>"
         + "<td>" + r.heure + "</td>"
         + "<td>" + badge + "</td>"
-        + "<td><button onclick='supprimer(" + r.index + ")' class='btn-del'><i class='fas fa-trash-can' style='margin-right:3px;'></i>Supprimer</button></td>"
+        + "<td><div class='action-btns'>" + msgButtons(r) + '<button onclick="supprimer(' + r.index + ')" class="btn-del"><i class="fas fa-trash-can"></i></button>' + "</div></td>"
         + "</tr>";
     });
   }
 
-  /* Compteurs animés */
   animCount("total", total);
   animCount("today", todayCount);
   animCount("soon", soonCount);
