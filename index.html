@@ -24,7 +24,7 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     background: var(--bg);
     color: var(--fg);
     min-height: 100vh;
@@ -47,6 +47,7 @@
     position: fixed; inset: 0; z-index: 9999;
     display: none; align-items: center; justify-content: center;
     background: rgba(15, 5, 5, 0.92);
+    -webkit-backdrop-filter: blur(18px) saturate(1.5);
     backdrop-filter: blur(18px) saturate(1.5);
     animation: overlayIn 0.4s ease-out;
   }
@@ -119,6 +120,7 @@
     font-family: inherit; font-weight: 800; font-size: 1rem;
     cursor: pointer; transition: transform 0.15s, box-shadow 0.25s;
     box-shadow: 0 4px 24px rgba(220,38,38,0.4); letter-spacing: 0.01em;
+    -webkit-tap-highlight-color: transparent;
   }
   .block-btn:hover { transform: scale(1.04); box-shadow: 0 6px 32px rgba(220,38,38,0.55); }
   .block-btn:active { transform: scale(0.97); }
@@ -172,6 +174,7 @@
     background: var(--card-alt); border: 1px solid var(--border); color: var(--fg);
     padding: 11px 15px; border-radius: 10px; font-family: inherit; font-size: 0.88rem;
     outline: none; transition: border-color 0.2s, box-shadow 0.2s; width: 100%;
+    -webkit-appearance: none; appearance: none;
   }
   .form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
   .form-input::placeholder { color: #b0b6c4; }
@@ -180,6 +183,7 @@
     background: var(--accent); color: #fff; border: none; padding: 11px 22px;
     border-radius: 10px; font-family: inherit; font-weight: 700; font-size: 0.88rem;
     cursor: pointer; transition: transform 0.15s, box-shadow 0.2s; white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
   }
   .btn-add:hover { transform: scale(1.03); box-shadow: 0 4px 16px var(--accent-glow); }
   .btn-add:active { transform: scale(0.97); }
@@ -212,6 +216,7 @@
     background: var(--danger-glow); color: var(--danger);
     border: 1px solid rgba(220,38,38,0.15); padding: 5px 12px; border-radius: 8px;
     font-family: inherit; font-size: 0.76rem; font-weight: 600; cursor: pointer; transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
   }
   .btn-del:hover { background: var(--danger); color: #fff; border-color: var(--danger); }
 
@@ -226,6 +231,7 @@
     background: none; border: none; color: var(--muted); font-family: inherit;
     font-size: 0.83rem; font-weight: 600; padding: 7px 18px; border-radius: 8px;
     cursor: pointer; transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
   }
   .tab-btn.active { background: var(--card); color: var(--fg); box-shadow: 0 1px 6px rgba(0,0,0,0.08); }
   .tab-btn:hover:not(.active) { color: var(--fg); }
@@ -235,7 +241,9 @@
   #confirmModal {
     position: fixed; inset: 0; z-index: 9998;
     display: none; align-items: center; justify-content: center;
-    background: rgba(0,0,0,0.5); backdrop-filter: blur(6px);
+    background: rgba(0,0,0,0.5);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
   }
   #confirmModal.active { display: flex; }
   .confirm-card {
@@ -277,6 +285,10 @@
 </style>
 </head>
 <body>
+
+<div id="storageWarning" style="display:none; position:fixed; top:0; left:0; right:0; z-index:1001; background:#fef3c7; color:#92400e; font-size:0.8rem; padding:8px 16px; text-align:center;">
+  <i class="fas fa-triangle-exclamation" style="margin-right:6px;"></i>La sauvegarde locale n'est pas disponible dans ce navigateur (mode privé ?) — vos rendez-vous ne seront pas conservés après fermeture de la page.
+</div>
 
 <!-- ====== OVERLAY BLOQUANT ====== -->
 <div id="blockOverlay">
@@ -371,11 +383,11 @@
     <form id="rdvForm" class="form-grid" style="display:grid; grid-template-columns:1.2fr 1fr 1fr 1fr auto; gap:12px; align-items:end;" onsubmit="event.preventDefault(); ajouter();">
       <div>
         <label style="font-size:0.72rem; color:var(--muted); font-weight:600; display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:0.04em;">Personne concernée *</label>
-        <input id="patient" class="form-input" placeholder="Nom de la personne">
+        <input id="patient" class="form-input" placeholder="Nom de la personne" autocomplete="off">
       </div>
       <div>
         <label style="font-size:0.72rem; color:var(--muted); font-weight:600; display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:0.04em;">Motif</label>
-        <input id="motif" class="form-input" placeholder="Consultation, suivi...">
+        <input id="motif" class="form-input" placeholder="Consultation, suivi..." autocomplete="off">
       </div>
       <div>
         <label style="font-size:0.72rem; color:var(--muted); font-weight:600; display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:0.04em;">Date *</label>
@@ -436,56 +448,114 @@
 <div id="toast" class="toast"></div>
 
 <script>
-let rdvs = JSON.parse(localStorage.getItem("rdvs") || "[]");
-let currentTab = "avenir";
-let blockDismissedFor = {};
+/* ====================================================================
+   COMPATIBILITÉ MULTI-NAVIGATEURS
+   - localStorage encapsulé avec repli mémoire (Safari privé, iframes, etc.)
+   - Notification / AudioContext / backdrop-filter avec détection de support
+   - Aucune fonctionnalité récente non supportée (pas d'optional chaining
+     ES2020 sur de vieux navigateurs, pas de dépendance à des API
+     expérimentales)
+   ==================================================================== */
 
-/* ====== Cooldown pour le son d'alerte (évite la répétition) ====== */
-let lastSoundTime = 0;
-const SOUND_COOLDOWN_MS = 60000; // 1 minute entre deux sons
-
-if ("Notification" in window && Notification.permission !== "granted") {
-  Notification.requestPermission();
+/* ---- Stockage sécurisé (fonctionne même si localStorage est bloqué) ---- */
+var memoryStore = { rdvs: null };
+var storageAvailable = true;
+function testStorage() {
+  try {
+    var k = "__rdv_test__";
+    window.localStorage.setItem(k, "1");
+    window.localStorage.removeItem(k);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+storageAvailable = ("localStorage" in window) && testStorage();
+if (!storageAvailable) {
+  var w = document.getElementById("storageWarning");
+  if (w) w.style.display = "block";
 }
 
-function save() { localStorage.setItem("rdvs", JSON.stringify(rdvs)); }
+function loadRdvs() {
+  if (storageAvailable) {
+    try {
+      return JSON.parse(window.localStorage.getItem("rdvs") || "[]");
+    } catch (e) {
+      return [];
+    }
+  }
+  return memoryStore.rdvs || [];
+}
+
+function save() {
+  if (storageAvailable) {
+    try {
+      window.localStorage.setItem("rdvs", JSON.stringify(rdvs));
+      return;
+    } catch (e) {
+      storageAvailable = false;
+      var w = document.getElementById("storageWarning");
+      if (w) w.style.display = "block";
+    }
+  }
+  memoryStore.rdvs = rdvs;
+}
+
+var rdvs = loadRdvs();
+var currentTab = "avenir";
+var blockDismissedFor = {};
+
+/* ====== Cooldown pour le son d'alerte (évite la répétition) ====== */
+var lastSoundTime = 0;
+var SOUND_COOLDOWN_MS = 60000; // 1 minute entre deux sons
+
+/* Notifications navigateur : support variable (absent sur iOS Safari, etc.) */
+var notificationsSupported = ("Notification" in window);
+if (notificationsSupported && Notification.permission !== "granted" && Notification.permission !== "denied") {
+  try { Notification.requestPermission(); } catch (e) { /* anciens navigateurs (API basée sur callback) */ }
+}
 
 function setDateNow() {
-  const now = new Date();
-  const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  let str = now.toLocaleDateString('fr-FR', opts);
+  var now = new Date();
+  var opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  var str;
+  try {
+    str = now.toLocaleDateString('fr-FR', opts);
+  } catch (e) {
+    str = now.toDateString();
+  }
   str = str.charAt(0).toUpperCase() + str.slice(1);
-  const h = String(now.getHours()).padStart(2, '0');
-  const m = String(now.getMinutes()).padStart(2, '0');
+  var h = String(now.getHours()).padStart(2, '0');
+  var m = String(now.getMinutes()).padStart(2, '0');
   document.getElementById("dateNow").textContent = str + " — " + h + ":" + m;
 }
 setDateNow();
 setInterval(setDateNow, 30000);
 
-/* ====== Formatage date en français ====== */
+/* ====== Formatage date en français (indépendant de Intl pour fiabilité) ====== */
 function formatDateFR(dateStr) {
-  const parts = dateStr.split("-");
-  const mois = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
-  return parseInt(parts[2]) + " " + mois[parseInt(parts[1]) - 1] + " " + parts[0];
+  var parts = dateStr.split("-");
+  var mois = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+  return parseInt(parts[2], 10) + " " + mois[parseInt(parts[1], 10) - 1] + " " + parts[0];
 }
 
 /* ====== Format court pour les rappels ====== */
 function formatDateCourt(dateStr) {
-  const parts = dateStr.split("-");
-  const moisCourt = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
-  return parseInt(parts[2]) + " " + moisCourt[parseInt(parts[1]) - 1];
+  var parts = dateStr.split("-");
+  var moisCourt = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+  return parseInt(parts[2], 10) + " " + moisCourt[parseInt(parts[1], 10) - 1];
 }
 
 function ajouter() {
-  const pEl = document.getElementById("patient");
-  const mEl = document.getElementById("motif");
-  const dEl = document.getElementById("date");
-  const hEl = document.getElementById("heure");
-  const p = pEl.value.trim(), m = mEl.value.trim();
-  const d = dEl.value, h = hEl.value;
+  var pEl = document.getElementById("patient");
+  var mEl = document.getElementById("motif");
+  var dEl = document.getElementById("date");
+  var hEl = document.getElementById("heure");
+  var p = pEl.value.trim(), m = mEl.value.trim();
+  var d = dEl.value, h = hEl.value;
 
-  let hasError = false;
-  [pEl, dEl, hEl].forEach(el => el.classList.remove("error"));
+  var hasError = false;
+  [pEl, dEl, hEl].forEach(function(el) { el.classList.remove("error"); });
   if (!p) { pEl.classList.add("error"); hasError = true; }
   if (!d) { dEl.classList.add("error"); hasError = true; }
   if (!h) { hEl.classList.add("error"); hasError = true; }
@@ -498,7 +568,7 @@ function ajouter() {
   rdvs.push({ patient: p, motif: m, date: d, heure: h, notif: false });
   save();
   pEl.value = ""; mEl.value = "";
-  [pEl, dEl, hEl].forEach(el => el.classList.remove("error"));
+  [pEl, dEl, hEl].forEach(function(el) { el.classList.remove("error"); });
   afficher();
   showToast("<i class='fas fa-check-circle' style='color:var(--accent);margin-right:8px;'></i>Rendez-vous ajouté avec succès.");
 }
@@ -508,10 +578,10 @@ document.addEventListener("input", function(e) {
 });
 
 /* ====== Suppression avec confirmation ====== */
-let pendingDeleteIndex = null;
+var pendingDeleteIndex = null;
 
 function supprimer(i) {
-  const r = rdvs[i];
+  var r = rdvs[i];
   pendingDeleteIndex = i;
   document.getElementById("confirmText").textContent =
     r.patient + " — " + formatDateFR(r.date) + " à " + r.heure + (r.motif ? " (" + r.motif + ")" : "");
@@ -525,7 +595,7 @@ function annulerSuppression() {
 
 document.getElementById("confirmDeleteBtn").addEventListener("click", function() {
   if (pendingDeleteIndex !== null) {
-    const r = rdvs[pendingDeleteIndex];
+    var r = rdvs[pendingDeleteIndex];
     rdvs.splice(pendingDeleteIndex, 1);
     save();
     afficher();
@@ -542,30 +612,31 @@ function esc(s) {
 
 function switchTab(tab, btn) {
   currentTab = tab;
-  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  var tabs = document.querySelectorAll(".tab-btn");
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove("active");
   btn.classList.add("active");
   afficher();
 }
 
-let notifClosed = false;
+var notifClosed = false;
 function fermerNotif() { notifClosed = true; document.getElementById("notibar").classList.remove("active"); }
 
 function showToast(html) {
-  const t = document.getElementById("toast");
+  var t = document.getElementById("toast");
   t.innerHTML = html;
   t.classList.add("show");
   clearTimeout(t._timer);
-  t._timer = setTimeout(() => t.classList.remove("show"), 3500);
+  t._timer = setTimeout(function() { t.classList.remove("show"); }, 3500);
 }
 
 /* ====== OVERLAY BLOQUANT ====== */
 function afficherBlock(urgents) {
-  const overlay = document.getElementById("blockOverlay");
-  const list = document.getElementById("blockList");
+  var overlay = document.getElementById("blockOverlay");
+  var list = document.getElementById("blockList");
   list.innerHTML = "";
 
-  urgents.forEach((r, idx) => {
-    const minR = Math.max(0, Math.round(r.diff * 60));
+  urgents.forEach(function(r, idx) {
+    var minR = Math.max(0, Math.round(r.diff * 60));
     list.innerHTML += '<div class="block-rdv-item" style="animation-delay:' + (idx * 0.12) + 's;">'
       + '<div class="block-rdv-name"><i class="fas fa-user" style="margin-right:8px; opacity:0.5;"></i>' + esc(r.patient) + '</div>'
       + '<div class="block-rdv-detail">'
@@ -581,65 +652,79 @@ function afficherBlock(urgents) {
 
 function fermerBlock() {
   document.getElementById("blockOverlay").classList.remove("active");
-  const now = new Date();
-  rdvs.forEach((r) => {
-    const dt = new Date(r.date + "T" + r.heure);
-    const diff = (dt - now) / 36e5;
+  var now = new Date();
+  rdvs.forEach(function(r) {
+    var dt = new Date(r.date + "T" + r.heure);
+    var diff = (dt - now) / 36e5;
     if (diff >= 0 && diff <= 0.5) {
       blockDismissedFor[r.date + r.heure + r.patient] = true;
     }
   });
-  /* Petit son de confirmation */
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain); gain.connect(ctx.destination);
-    osc.frequency.value = 660; osc.type = "sine"; gain.gain.value = 0.15;
-    osc.start();
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-    osc.stop(ctx.currentTime + 0.3);
-  } catch(e) {}
+  playTone([660]);
 }
+
+/* ====== Son d'alerte (Web Audio API avec préfixe webkit pour Safari) ====== */
+function getAudioCtx() {
+  var Ctx = window.AudioContext || window.webkitAudioContext;
+  if (!Ctx) return null;
+  try { return new Ctx(); } catch (e) { return null; }
+}
+function playTone(freqs) {
+  var ctx = getAudioCtx();
+  if (!ctx) return;
+  try {
+    freqs.forEach(function(freq, i) {
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = freq; osc.type = "sine"; gain.gain.value = 0.15;
+      osc.start(ctx.currentTime + i * 0.25);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.25 + 0.28);
+      osc.stop(ctx.currentTime + i * 0.25 + 0.3);
+    });
+    if (ctx.state === "suspended" && ctx.resume) ctx.resume();
+  } catch (e) { /* silencieux si l'audio est bloqué par le navigateur */ }
+}
+function playAlertSound() { playTone([880, 660]); }
 
 /* ====== AFFICHAGE PRINCIPAL ====== */
 function afficher() {
-  const tb = document.getElementById("tbody");
-  const rapp = document.getElementById("rappels");
-  const notibar = document.getElementById("notibar");
-  const notibarContent = document.getElementById("notibar-content");
+  var tb = document.getElementById("tbody");
+  var rapp = document.getElementById("rappels");
+  var notibar = document.getElementById("notibar");
+  var notibarContent = document.getElementById("notibar-content");
   tb.innerHTML = "";
   rapp.innerHTML = "";
   notibarContent.innerHTML = "";
 
-  let total = rdvs.length, todayCount = 0, soonCount = 0, lateCount = 0;
-  const now = new Date();
-  const y = now.getFullYear();
-  const mo = String(now.getMonth() + 1).padStart(2, "0");
-  const da = String(now.getDate()).padStart(2, "0");
-  const todayStr = y + "-" + mo + "-" + da;
+  var total = rdvs.length, todayCount = 0, soonCount = 0, lateCount = 0;
+  var now = new Date();
+  var y = now.getFullYear();
+  var mo = String(now.getMonth() + 1).padStart(2, "0");
+  var da = String(now.getDate()).padStart(2, "0");
+  var todayStr = y + "-" + mo + "-" + da;
 
-  rdvs.sort((a, b) => (a.date + a.heure).localeCompare(b.date + b.heure));
+  rdvs.sort(function(a, b) { return (a.date + a.heure).localeCompare(b.date + b.heure); });
 
-  const avenir = [];
-  const historique = [];
-  let urgents = [];
+  var avenir = [];
+  var historique = [];
+  var urgents = [];
 
-  rdvs.forEach((r, i) => {
-    const dt = new Date(r.date + "T" + r.heure);
-    const diff = (dt - now) / 36e5;
+  rdvs.forEach(function(r, i) {
+    var dt = new Date(r.date + "T" + r.heure);
+    var diff = (dt - now) / 36e5;
 
     if (r.date === todayStr) todayCount++;
     if (diff >= 0 && diff <= 24) soonCount++;
     if (diff < 0) lateCount++;
 
-    const entry = { ...r, diff, index: i };
+    var entry = Object.assign({}, r, { diff: diff, index: i });
     if (diff < 0) { historique.push(entry); } else { avenir.push(entry); }
 
     if (diff >= 0 && diff <= 24) {
-      const minR = Math.round(diff * 60);
-      let timeStr = "";
-      let isUrgent = false;
+      var minR = Math.round(diff * 60);
+      var timeStr = "";
+      var isUrgent = false;
       if (diff <= 0.5) {
         timeStr = "<span style='color:#dc2626; font-weight:800; font-size:0.81rem;'>DANS " + minR + " MIN</span>";
         isUrgent = true;
@@ -649,7 +734,6 @@ function afficher() {
         timeStr = "<span style='color:var(--muted); font-size:0.81rem;'>dans " + Math.round(diff) + "h</span>";
       }
 
-      /* ====== CORRECTION : date formatée en français dans les rappels ====== */
       rapp.innerHTML += '<div class="rappel-card' + (isUrgent ? ' urgent' : '') + '">'
         + "<div style='display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;'>"
         + "<div><b style='font-size:0.93rem;'>" + esc(r.patient) + "</b>"
@@ -658,14 +742,16 @@ function afficher() {
         + (r.motif ? "<div style='color:var(--muted); font-size:0.82rem; margin-top:3px;'>" + esc(r.motif) + "</div>" : "")
         + "</div>";
 
-      if (isUrgent) urgents.push({ ...r, diff });
+      if (isUrgent) urgents.push(Object.assign({}, r, { diff: diff }));
 
-      /* Notification navigateur */
-      if ("Notification" in window && Notification.permission === "granted" && !r.notif && diff >= 0 && diff <= 0.5) {
-        new Notification("Rappel RDV — 30 minutes", {
-          body: r.patient + " à " + r.heure + (r.motif ? " (" + r.motif + ")" : ""),
-          icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔔</text></svg>"
-        });
+      /* Notification navigateur (dégradation silencieuse si non supportée / refusée) */
+      if (notificationsSupported && Notification.permission === "granted" && !r.notif && diff >= 0 && diff <= 0.5) {
+        try {
+          new Notification("Rappel RDV — 30 minutes", {
+            body: r.patient + " à " + r.heure + (r.motif ? " (" + r.motif + ")" : ""),
+            icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔔</text></svg>"
+          });
+        } catch (e) { /* certains navigateurs mobiles n'autorisent pas new Notification() hors Service Worker */ }
         r.notif = true;
         save();
       }
@@ -673,9 +759,9 @@ function afficher() {
   });
 
   /* ====== Bannière non bloquante (uniquement si l'overlay n'est pas actif) ====== */
-  const overlayActive = document.getElementById("blockOverlay").classList.contains("active");
+  var overlayActive = document.getElementById("blockOverlay").classList.contains("active");
   if (urgents.length > 0 && !notifClosed && !overlayActive) {
-    urgents.forEach((r, idx) => {
+    urgents.forEach(function(r, idx) {
       notibarContent.innerHTML += '<div class="notif-item" style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.1); padding:10px 16px; border-radius:10px; animation-delay:' + (idx * 0.1) + 's;">'
         + "<i class='fas fa-circle-exclamation' style='font-size:1.05rem; flex-shrink:0;'></i>"
         + "<div style='flex:1;'>"
@@ -694,11 +780,10 @@ function afficher() {
   }
 
   /* ====== OVERLAY BLOQUANT (avec cooldown son) ====== */
-  const nonDismissedUrgents = urgents.filter(r => !blockDismissedFor[r.date + r.heure + r.patient]);
+  var nonDismissedUrgents = urgents.filter(function(r) { return !blockDismissedFor[r.date + r.heure + r.patient]; });
   if (nonDismissedUrgents.length > 0) {
     afficherBlock(nonDismissedUrgents);
-    /* Son uniquement si pas joué dans la dernière minute */
-    const nowMs = Date.now();
+    var nowMs = Date.now();
     if (nowMs - lastSoundTime > SOUND_COOLDOWN_MS) {
       playAlertSound();
       lastSoundTime = nowMs;
@@ -706,13 +791,13 @@ function afficher() {
   }
 
   /* ====== Tableau avec dates formatées ====== */
-  const data = currentTab === "avenir" ? avenir : historique;
+  var data = currentTab === "avenir" ? avenir : historique;
   if (data.length === 0) {
-    const msg = currentTab === "avenir" ? "Aucun rendez-vous à venir." : "Aucun rendez-vous passé.";
+    var msg = currentTab === "avenir" ? "Aucun rendez-vous à venir." : "Aucun rendez-vous passé.";
     tb.innerHTML = '<tr class="empty-row"><td colspan="6"><i class="fas fa-inbox" style="font-size:1.3rem; display:block; margin-bottom:8px; opacity:0.35;"></i>' + msg + '</td></tr>';
   } else {
-    data.forEach(r => {
-      let badge = "", rowClass = "";
+    data.forEach(function(r) {
+      var badge = "", rowClass = "";
       if (currentTab === "historique") {
         rowClass = ' class="hist-row"';
         badge = '<span class="badge badge-passed"><i class="fas fa-check" style="margin-right:3px;"></i>Passé</span>';
@@ -738,38 +823,30 @@ function afficher() {
   animCount("late", lateCount);
 }
 
-/* ====== Son d'alerte ====== */
-function playAlertSound() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    [880, 660].forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain); gain.connect(ctx.destination);
-      osc.frequency.value = freq; osc.type = "sine"; gain.gain.value = 0.18;
-      osc.start(ctx.currentTime + i * 0.25);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.25 + 0.22);
-      osc.stop(ctx.currentTime + i * 0.25 + 0.22);
-    });
-  } catch(e) {}
-}
-
 function animCount(id, val) {
-  const el = document.getElementById(id);
-  const prev = parseInt(el.textContent) || 0;
+  var el = document.getElementById(id);
+  var prev = parseInt(el.textContent, 10) || 0;
   if (prev !== val) {
     el.textContent = val;
     el.classList.add("bump");
-    setTimeout(() => el.classList.remove("bump"), 300);
+    setTimeout(function() { el.classList.remove("bump"); }, 300);
   }
 }
 
 /* ====== Init ====== */
-const nowI = new Date();
+var nowI = new Date();
 document.getElementById("date").value = nowI.getFullYear() + "-" + String(nowI.getMonth() + 1).padStart(2, "0") + "-" + String(nowI.getDate()).padStart(2, "0");
 
 afficher();
 setInterval(afficher, 15000);
+
+/* Débloque le son sur mobile (Safari iOS exige une interaction utilisateur
+   avant d'autoriser AudioContext) */
+document.addEventListener("click", function unlockAudioOnce() {
+  var ctx = getAudioCtx();
+  if (ctx && ctx.resume) ctx.resume();
+  document.removeEventListener("click", unlockAudioOnce);
+}, { once: true });
 </script>
 </body>
 </html>
