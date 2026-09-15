@@ -421,10 +421,22 @@
         <div class="icon-circle" style="background:var(--accent-glow); color:var(--accent);"><i class="fas fa-table-list"></i></div>
         Rendez-vous
       </div>
-      <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('avenir', this)">À venir</button>
-        <button class="tab-btn" onclick="switchTab('historique', this)">Historique</button>
+      <div class="flex items-center gap-2 flex-wrap">
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab('avenir', this)">À venir</button>
+          <button class="tab-btn" onclick="switchTab('historique', this)">Historique</button>
+        </div>
+        <button onclick="exporterRdvs()" title="Télécharger un fichier avec tous les rendez-vous, pour les importer dans un autre navigateur" style="background:var(--card-alt); border:1px solid var(--border); color:var(--fg); padding:8px 14px; border-radius:8px; font-family:inherit; font-weight:600; font-size:0.8rem; cursor:pointer; display:flex; align-items:center; gap:6px;">
+          <i class="fas fa-download"></i>Exporter
+        </button>
+        <label title="Charger un fichier exporté depuis un autre navigateur" style="background:var(--card-alt); border:1px solid var(--border); color:var(--fg); padding:8px 14px; border-radius:8px; font-family:inherit; font-weight:600; font-size:0.8rem; cursor:pointer; display:flex; align-items:center; gap:6px; margin:0;">
+          <i class="fas fa-upload"></i>Importer
+          <input type="file" accept=".json,application/json" onchange="importerRdvs(event)" style="display:none;">
+        </label>
       </div>
+    </div>
+    <div style="color:var(--muted); font-size:0.78rem; margin:-4px 0 14px;">
+      <i class="fas fa-circle-info" style="margin-right:5px;"></i>Les rendez-vous sont enregistrés uniquement dans ce navigateur. Utilisez « Exporter » puis « Importer » pour les retrouver sur un autre navigateur ou appareil.
     </div>
     <div class="table-wrap">
       <table>
@@ -821,6 +833,74 @@ function afficher() {
   animCount("today", todayCount);
   animCount("soon", soonCount);
   animCount("late", lateCount);
+}
+
+/* ====== EXPORT / IMPORT (pour transférer les RDV vers un autre navigateur) ====== */
+function exporterRdvs() {
+  try {
+    var data = JSON.stringify(rdvs, null, 2);
+    var blob = new Blob([data], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    var now = new Date();
+    var stamp = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2,"0") + "-" + String(now.getDate()).padStart(2,"0");
+    a.href = url;
+    a.download = "rendez-vous-" + stamp + ".json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+    showToast("<i class='fas fa-download' style='color:var(--accent);margin-right:8px;'></i>Fichier exporté. Importez-le dans l'autre navigateur.");
+  } catch (e) {
+    showToast("<i class='fas fa-exclamation-circle' style='color:var(--danger);margin-right:8px;'></i>L'export a échoué sur ce navigateur.");
+  }
+}
+
+function importerRdvs(event) {
+  var file = event.target.files && event.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var imported = JSON.parse(e.target.result);
+      if (!Array.isArray(imported)) throw new Error("format invalide");
+
+      var valides = imported.filter(function(r) {
+        return r && typeof r.patient === "string" && typeof r.date === "string" && typeof r.heure === "string";
+      });
+
+      if (valides.length === 0) {
+        showToast("<i class='fas fa-exclamation-circle' style='color:var(--danger);margin-right:8px;'></i>Fichier vide ou invalide.");
+        event.target.value = "";
+        return;
+      }
+
+      /* Fusionne en évitant les doublons exacts (même personne + date + heure) */
+      var existants = {};
+      rdvs.forEach(function(r) { existants[r.patient + "|" + r.date + "|" + r.heure] = true; });
+      var ajoutes = 0;
+      valides.forEach(function(r) {
+        var cle = r.patient + "|" + r.date + "|" + r.heure;
+        if (!existants[cle]) {
+          rdvs.push({ patient: r.patient, motif: r.motif || "", date: r.date, heure: r.heure, notif: false });
+          existants[cle] = true;
+          ajoutes++;
+        }
+      });
+
+      save();
+      afficher();
+      showToast("<i class='fas fa-check-circle' style='color:var(--accent);margin-right:8px;'></i>" + ajoutes + " rendez-vous importé(s) (doublons ignorés).");
+    } catch (err) {
+      showToast("<i class='fas fa-exclamation-circle' style='color:var(--danger);margin-right:8px;'></i>Le fichier n'est pas un export valide.");
+    }
+    event.target.value = "";
+  };
+  reader.onerror = function() {
+    showToast("<i class='fas fa-exclamation-circle' style='color:var(--danger);margin-right:8px;'></i>Impossible de lire le fichier.");
+    event.target.value = "";
+  };
+  reader.readAsText(file);
 }
 
 function animCount(id, val) {
