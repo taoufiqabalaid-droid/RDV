@@ -44,63 +44,41 @@
 
   /* ====== OVERLAY BLOQUANT ====== */
   #blockOverlay {
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    display: none;
-    align-items: center;
-    justify-content: center;
+    position: fixed; inset: 0; z-index: 9999;
+    display: none; align-items: center; justify-content: center;
     background: rgba(15, 5, 5, 0.92);
     backdrop-filter: blur(18px) saturate(1.5);
     animation: overlayIn 0.4s ease-out;
   }
   #blockOverlay.active { display: flex; }
-  @keyframes overlayIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
+  @keyframes overlayIn { from { opacity: 0; } to { opacity: 1; } }
   .block-card {
     background: linear-gradient(160deg, #2a0a0a 0%, #1a0505 40%, #0f0202 100%);
     border: 2px solid rgba(220,38,38,0.5);
-    border-radius: 28px;
-    padding: 48px 44px;
-    max-width: 520px;
-    width: 92%;
-    text-align: center;
-    box-shadow:
-      0 0 80px rgba(220,38,38,0.3),
-      0 0 200px rgba(220,38,38,0.1),
+    border-radius: 28px; padding: 48px 44px;
+    max-width: 520px; width: 92%; text-align: center;
+    box-shadow: 0 0 80px rgba(220,38,38,0.3), 0 0 200px rgba(220,38,38,0.1),
       inset 0 1px 0 rgba(255,255,255,0.05);
     animation: blockCardIn 0.5s cubic-bezier(0.22,1,0.36,1);
-    position: relative;
-    overflow: hidden;
+    position: relative; overflow: hidden;
   }
   @keyframes blockCardIn {
     from { opacity: 0; transform: translateY(30px) scale(0.94); }
     to { opacity: 1; transform: translateY(0) scale(1); }
   }
   .block-card::before {
-    content: '';
-    position: absolute;
-    top: -60%; left: -60%;
+    content: ''; position: absolute; top: -60%; left: -60%;
     width: 220%; height: 220%;
     background: conic-gradient(from 0deg, transparent 0%, rgba(220,38,38,0.08) 25%, transparent 50%);
-    animation: rotateGlow 6s linear infinite;
-    pointer-events: none;
+    animation: rotateGlow 6s linear infinite; pointer-events: none;
   }
-  @keyframes rotateGlow {
-    to { transform: rotate(360deg); }
-  }
+  @keyframes rotateGlow { to { transform: rotate(360deg); } }
   .block-icon-wrap {
-    width: 90px; height: 90px;
-    margin: 0 auto 28px;
-    border-radius: 50%;
+    width: 90px; height: 90px; margin: 0 auto 28px; border-radius: 50%;
     background: linear-gradient(135deg, rgba(220,38,38,0.25), rgba(220,38,38,0.08));
     border: 2px solid rgba(220,38,38,0.4);
     display: flex; align-items: center; justify-content: center;
-    position: relative;
-    z-index: 1;
-    animation: iconPulse 2s ease-in-out infinite;
+    position: relative; z-index: 1; animation: iconPulse 2s ease-in-out infinite;
   }
   @keyframes iconPulse {
     0%, 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.4); }
@@ -108,33 +86,18 @@
   }
   .block-icon-wrap i { font-size: 38px; color: #f87171; }
   .block-title {
-    font-size: 1.55rem;
-    font-weight: 900;
-    color: #fca5a5;
-    letter-spacing: -0.01em;
-    margin-bottom: 8px;
-    position: relative;
-    z-index: 1;
+    font-size: 1.55rem; font-weight: 900; color: #fca5a5;
+    letter-spacing: -0.01em; margin-bottom: 8px;
+    position: relative; z-index: 1;
   }
   .block-subtitle {
-    font-size: 0.88rem;
-    color: rgba(252,165,165,0.6);
-    margin-bottom: 32px;
-    position: relative;
-    z-index: 1;
+    font-size: 0.88rem; color: rgba(252,165,165,0.6);
+    margin-bottom: 32px; position: relative; z-index: 1;
   }
-  .block-rdv-list {
-    text-align: left;
-    margin-bottom: 32px;
-    position: relative;
-    z-index: 1;
-  }
+  .block-rdv-list { text-align: left; margin-bottom: 32px; position: relative; z-index: 1; }
   .block-rdv-item {
-    background: rgba(220,38,38,0.1);
-    border: 1px solid rgba(220,38,38,0.2);
-    border-radius: 14px;
-    padding: 16px 18px;
-    margin-bottom: 10px;
+    background: rgba(220,38,38,0.1); border: 1px solid rgba(220,38,38,0.2);
+    border-radius: 14px; padding: 16px 18px; margin-bottom: 10px;
     animation: rdvSlide 0.4s ease-out both;
   }
   .block-rdv-item:last-child { margin-bottom: 0; }
@@ -142,74 +105,36 @@
     from { opacity: 0; transform: translateX(-12px); }
     to { opacity: 1; transform: translateX(0); }
   }
-  .block-rdv-name {
-    font-weight: 700;
-    font-size: 1rem;
-    color: #fff;
-    margin-bottom: 4px;
-  }
-  .block-rdv-detail {
-    font-size: 0.82rem;
-    color: rgba(255,255,255,0.5);
-  }
+  .block-rdv-name { font-weight: 700; font-size: 1rem; color: #fff; margin-bottom: 4px; }
+  .block-rdv-detail { font-size: 0.82rem; color: rgba(255,255,255,0.5); }
   .block-rdv-time {
-    display: inline-block;
-    background: rgba(220,38,38,0.3);
-    color: #fca5a5;
-    font-weight: 800;
-    font-size: 0.78rem;
-    padding: 3px 10px;
-    border-radius: 6px;
-    margin-top: 8px;
-    letter-spacing: 0.03em;
+    display: inline-block; background: rgba(220,38,38,0.3); color: #fca5a5;
+    font-weight: 800; font-size: 0.78rem; padding: 3px 10px;
+    border-radius: 6px; margin-top: 8px; letter-spacing: 0.03em;
   }
   .block-btn {
-    position: relative;
-    z-index: 1;
+    position: relative; z-index: 1;
     background: linear-gradient(135deg, #dc2626, #b91c1c);
-    color: #fff;
-    border: none;
-    padding: 16px 48px;
-    border-radius: 14px;
-    font-family: inherit;
-    font-weight: 800;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: transform 0.15s, box-shadow 0.25s;
-    box-shadow: 0 4px 24px rgba(220,38,38,0.4);
-    letter-spacing: 0.01em;
+    color: #fff; border: none; padding: 16px 48px; border-radius: 14px;
+    font-family: inherit; font-weight: 800; font-size: 1rem;
+    cursor: pointer; transition: transform 0.15s, box-shadow 0.25s;
+    box-shadow: 0 4px 24px rgba(220,38,38,0.4); letter-spacing: 0.01em;
   }
-  .block-btn:hover {
-    transform: scale(1.04);
-    box-shadow: 0 6px 32px rgba(220,38,38,0.55);
-  }
+  .block-btn:hover { transform: scale(1.04); box-shadow: 0 6px 32px rgba(220,38,38,0.55); }
   .block-btn:active { transform: scale(0.97); }
-  .block-hint {
-    position: relative;
-    z-index: 1;
-    color: rgba(255,255,255,0.25);
-    font-size: 0.75rem;
-    margin-top: 16px;
-  }
+  .block-hint { position: relative; z-index: 1; color: rgba(255,255,255,0.25); font-size: 0.75rem; margin-top: 16px; }
   .block-top-line {
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
     background: linear-gradient(90deg, transparent, #ef4444, #fbbf24, #ef4444, transparent);
-    background-size: 200% 100%;
-    animation: lineSlide 2s linear infinite;
+    background-size: 200% 100%; animation: lineSlide 2s linear infinite;
   }
-  @keyframes lineSlide {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-  }
+  @keyframes lineSlide { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-  /* ====== Bannière notibar (non bloquante) ====== */
+  /* ====== Bannière notibar ====== */
   #notibar {
     position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
     background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-    color: #fff;
-    max-height: 0; overflow: hidden;
+    color: #fff; max-height: 0; overflow: hidden;
     transition: max-height 0.5s cubic-bezier(0.22,1,0.36,1), padding 0.5s cubic-bezier(0.22,1,0.36,1);
     box-shadow: 0 6px 40px rgba(220,38,38,0.35);
   }
@@ -272,10 +197,7 @@
     font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
     padding: 13px 14px; text-align: left; border-bottom: 1px solid var(--border);
   }
-  tbody td {
-    padding: 13px 14px; border-bottom: 1px solid var(--border);
-    font-size: 0.87rem; vertical-align: middle;
-  }
+  tbody td { padding: 13px 14px; border-bottom: 1px solid var(--border); font-size: 0.87rem; vertical-align: middle; }
   tbody tr { transition: background 0.15s; }
   tbody tr:hover { background: rgba(0,0,0,0.015); }
   tbody tr:last-child td { border-bottom: none; }
@@ -308,6 +230,20 @@
   .tab-btn.active { background: var(--card); color: var(--fg); box-shadow: 0 1px 6px rgba(0,0,0,0.08); }
   .tab-btn:hover:not(.active) { color: var(--fg); }
   .hist-row td { color: var(--muted); }
+
+  /* ====== Modal confirmation suppression ====== */
+  #confirmModal {
+    position: fixed; inset: 0; z-index: 9998;
+    display: none; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(6px);
+  }
+  #confirmModal.active { display: flex; }
+  .confirm-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 18px;
+    padding: 32px; max-width: 400px; width: 90%; text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    animation: blockCardIn 0.3s cubic-bezier(0.22,1,0.36,1);
+  }
 
   .toast {
     position: fixed; bottom: 24px; right: 24px; z-index: 999;
@@ -346,19 +282,33 @@
 <div id="blockOverlay">
   <div class="block-top-line"></div>
   <div class="block-card">
-    <div class="block-icon-wrap">
-      <i class="fas fa-bell"></i>
-    </div>
+    <div class="block-icon-wrap"><i class="fas fa-bell"></i></div>
     <div class="block-title">Rendez-vous imminent</div>
     <div class="block-subtitle">Vous devez prendre connaissance avant de continuer</div>
     <div id="blockList" class="block-rdv-list"></div>
     <button class="block-btn" onclick="fermerBlock()">
       <i class="fas fa-check" style="margin-right:8px;"></i>J'ai pris connaissance
     </button>
-    <div class="block-hint">L'accès a l'application est bloque jusqu'a validation</div>
+    <div class="block-hint">L'accès à l'application est bloqué jusqu'à validation</div>
   </div>
 </div>
 
+<!-- ====== MODAL CONFIRMATION SUPPRESSION ====== -->
+<div id="confirmModal">
+  <div class="confirm-card">
+    <div style="width:56px;height:56px;margin:0 auto 20px;border-radius:50%;background:var(--danger-glow);display:flex;align-items:center;justify-content:center;">
+      <i class="fas fa-trash-can" style="color:var(--danger);font-size:22px;"></i>
+    </div>
+    <div style="font-size:1.1rem;font-weight:800;margin-bottom:6px;">Supprimer ce rendez-vous ?</div>
+    <div id="confirmText" style="color:var(--muted);font-size:0.88rem;margin-bottom:24px;"></div>
+    <div style="display:flex;gap:10px;justify-content:center;">
+      <button onclick="annulerSuppression()" style="background:var(--card-alt);border:1px solid var(--border);color:var(--fg);padding:10px 24px;border-radius:10px;font-family:inherit;font-weight:600;font-size:0.88rem;cursor:pointer;">Annuler</button>
+      <button id="confirmDeleteBtn" style="background:var(--danger);border:none;color:#fff;padding:10px 24px;border-radius:10px;font-family:inherit;font-weight:600;font-size:0.88rem;cursor:pointer;">Supprimer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== BANNIÈRE NOTIFICATION ====== -->
 <div id="notibar">
   <div class="max-w-6xl mx-auto flex items-center gap-3 mb-2">
     <div class="pulse-dot"></div>
@@ -384,6 +334,7 @@
     </div>
   </header>
 
+  <!-- STATISTIQUES -->
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-7">
     <div class="stat-card fade-up" style="animation-delay:0.05s">
       <div class="stat-icon" style="background:var(--accent-glow); color:var(--accent);"><i class="fas fa-list-check"></i></div>
@@ -400,7 +351,7 @@
     <div class="stat-card fade-up" style="animation-delay:0.15s">
       <div class="stat-icon" style="background:rgba(37,99,235,0.08); color:#2563eb;"><i class="fas fa-clock"></i></div>
       <div class="stat-value count-animate" id="soon" style="color:#2563eb;">0</div>
-      <div class="stat-label">A venir (24h)</div>
+      <div class="stat-label">À venir (24h)</div>
       <div style="position:absolute;top:-25px;right:-25px;width:80px;height:80px;border-radius:50%;background:#2563eb;"></div>
     </div>
     <div class="stat-card fade-up" style="animation-delay:0.2s">
@@ -411,14 +362,15 @@
     </div>
   </div>
 
+  <!-- FORMULAIRE -->
   <div class="form-card mb-7 fade-up" style="animation-delay:0.25s">
     <div class="section-title mb-5">
       <div class="icon-circle" style="background:var(--accent-glow); color:var(--accent);"><i class="fas fa-plus"></i></div>
       Nouveau rendez-vous
     </div>
-    <div class="form-grid" style="display:grid; grid-template-columns:1.2fr 1fr 1fr 1fr auto; gap:12px; align-items:end;">
+    <form id="rdvForm" class="form-grid" style="display:grid; grid-template-columns:1.2fr 1fr 1fr 1fr auto; gap:12px; align-items:end;" onsubmit="event.preventDefault(); ajouter();">
       <div>
-        <label style="font-size:0.72rem; color:var(--muted); font-weight:600; display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:0.04em;">Personne concernee *</label>
+        <label style="font-size:0.72rem; color:var(--muted); font-weight:600; display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:0.04em;">Personne concernée *</label>
         <input id="patient" class="form-input" placeholder="Nom de la personne">
       </div>
       <div>
@@ -433,12 +385,13 @@
         <label style="font-size:0.72rem; color:var(--muted); font-weight:600; display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:0.04em;">Heure *</label>
         <input id="heure" type="time" class="form-input">
       </div>
-      <button onclick="ajouter()" class="btn-add" style="height:44px;">
+      <button type="submit" class="btn-add" style="height:44px;">
         <i class="fas fa-plus" style="margin-right:5px;"></i>Ajouter
       </button>
-    </div>
+    </form>
   </div>
 
+  <!-- RAPPELS -->
   <div class="form-card mb-7 fade-up" style="animation-delay:0.3s; border-color:rgba(217,119,6,0.25); background:linear-gradient(135deg, rgba(217,119,6,0.03), var(--card));">
     <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
       <div class="section-title">
@@ -449,6 +402,7 @@
     <div id="rappels" class="space-y-3"></div>
   </div>
 
+  <!-- TABLEAU -->
   <div class="fade-up" style="animation-delay:0.35s">
     <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
       <div class="section-title">
@@ -456,7 +410,7 @@
         Rendez-vous
       </div>
       <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('avenir', this)">A venir</button>
+        <button class="tab-btn active" onclick="switchTab('avenir', this)">À venir</button>
         <button class="tab-btn" onclick="switchTab('historique', this)">Historique</button>
       </div>
     </div>
@@ -464,7 +418,7 @@
       <table>
         <thead>
           <tr>
-            <th>Personne concernee</th>
+            <th>Personne concernée</th>
             <th>Motif</th>
             <th>Date</th>
             <th>Heure</th>
@@ -486,6 +440,10 @@ let rdvs = JSON.parse(localStorage.getItem("rdvs") || "[]");
 let currentTab = "avenir";
 let blockDismissedFor = {};
 
+/* ====== Cooldown pour le son d'alerte (évite la répétition) ====== */
+let lastSoundTime = 0;
+const SOUND_COOLDOWN_MS = 60000; // 1 minute entre deux sons
+
 if ("Notification" in window && Notification.permission !== "granted") {
   Notification.requestPermission();
 }
@@ -504,10 +462,18 @@ function setDateNow() {
 setDateNow();
 setInterval(setDateNow, 30000);
 
+/* ====== Formatage date en français ====== */
 function formatDateFR(dateStr) {
   const parts = dateStr.split("-");
   const mois = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
   return parseInt(parts[2]) + " " + mois[parseInt(parts[1]) - 1] + " " + parts[0];
+}
+
+/* ====== Format court pour les rappels ====== */
+function formatDateCourt(dateStr) {
+  const parts = dateStr.split("-");
+  const moisCourt = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+  return parseInt(parts[2]) + " " + moisCourt[parseInt(parts[1]) - 1];
 }
 
 function ajouter() {
@@ -525,7 +491,7 @@ function ajouter() {
   if (!h) { hEl.classList.add("error"); hasError = true; }
 
   if (hasError) {
-    showToast("<i class='fas fa-exclamation-circle' style='color:var(--danger);margin-right:8px;'></i>Complétez les champs obligatoires (Personne concernee, Date, Heure).");
+    showToast("<i class='fas fa-exclamation-circle' style='color:var(--danger);margin-right:8px;'></i>Complétez les champs obligatoires (Personne concernée, Date, Heure).");
     return;
   }
 
@@ -541,13 +507,33 @@ document.addEventListener("input", function(e) {
   if (e.target.classList.contains("form-input")) e.target.classList.remove("error");
 });
 
+/* ====== Suppression avec confirmation ====== */
+let pendingDeleteIndex = null;
+
 function supprimer(i) {
   const r = rdvs[i];
-  rdvs.splice(i, 1);
-  save();
-  afficher();
-  showToast("<i class='fas fa-trash' style='color:var(--danger);margin-right:8px;'></i>RDV de " + esc(r.patient) + " supprimé.");
+  pendingDeleteIndex = i;
+  document.getElementById("confirmText").textContent =
+    r.patient + " — " + formatDateFR(r.date) + " à " + r.heure + (r.motif ? " (" + r.motif + ")" : "");
+  document.getElementById("confirmModal").classList.add("active");
 }
+
+function annulerSuppression() {
+  pendingDeleteIndex = null;
+  document.getElementById("confirmModal").classList.remove("active");
+}
+
+document.getElementById("confirmDeleteBtn").addEventListener("click", function() {
+  if (pendingDeleteIndex !== null) {
+    const r = rdvs[pendingDeleteIndex];
+    rdvs.splice(pendingDeleteIndex, 1);
+    save();
+    afficher();
+    showToast("<i class='fas fa-trash' style='color:var(--danger);margin-right:8px;'></i>RDV de " + esc(r.patient) + " supprimé.");
+  }
+  pendingDeleteIndex = null;
+  document.getElementById("confirmModal").classList.remove("active");
+});
 
 function esc(s) {
   if (!s) return "";
@@ -583,7 +569,7 @@ function afficherBlock(urgents) {
     list.innerHTML += '<div class="block-rdv-item" style="animation-delay:' + (idx * 0.12) + 's;">'
       + '<div class="block-rdv-name"><i class="fas fa-user" style="margin-right:8px; opacity:0.5;"></i>' + esc(r.patient) + '</div>'
       + '<div class="block-rdv-detail">'
-      + '<i class="fas fa-calendar" style="margin-right:5px;"></i>' + formatDateFR(r.date) + ' a ' + r.heure
+      + '<i class="fas fa-calendar" style="margin-right:5px;"></i>' + formatDateFR(r.date) + ' à ' + r.heure
       + (r.motif ? ' — ' + esc(r.motif) : '')
       + '</div>'
       + '<div class="block-rdv-time"><i class="fas fa-bolt" style="margin-right:4px;"></i>DANS ' + minR + ' MIN</div>'
@@ -594,8 +580,7 @@ function afficherBlock(urgents) {
 }
 
 function fermerBlock() {
-  const overlay = document.getElementById("blockOverlay");
-  overlay.classList.remove("active");
+  document.getElementById("blockOverlay").classList.remove("active");
   const now = new Date();
   rdvs.forEach((r) => {
     const dt = new Date(r.date + "T" + r.heure);
@@ -604,15 +589,13 @@ function fermerBlock() {
       blockDismissedFor[r.date + r.heure + r.patient] = true;
     }
   });
+  /* Petit son de confirmation */
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.frequency.value = 660;
-    osc.type = "sine";
-    gain.gain.value = 0.15;
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.frequency.value = 660; osc.type = "sine"; gain.gain.value = 0.15;
     osc.start();
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
     osc.stop(ctx.currentTime + 0.3);
@@ -666,20 +649,21 @@ function afficher() {
         timeStr = "<span style='color:var(--muted); font-size:0.81rem;'>dans " + Math.round(diff) + "h</span>";
       }
 
+      /* ====== CORRECTION : date formatée en français dans les rappels ====== */
       rapp.innerHTML += '<div class="rappel-card' + (isUrgent ? ' urgent' : '') + '">'
         + "<div style='display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;'>"
         + "<div><b style='font-size:0.93rem;'>" + esc(r.patient) + "</b>"
-        + " <span style='color:var(--muted); font-size:0.84rem;'>" + r.date + " a " + r.heure + "</span></div>"
+        + " <span style='color:var(--muted); font-size:0.84rem;'>" + formatDateCourt(r.date) + " à " + r.heure + "</span></div>"
         + timeStr + "</div>"
         + (r.motif ? "<div style='color:var(--muted); font-size:0.82rem; margin-top:3px;'>" + esc(r.motif) + "</div>" : "")
         + "</div>";
 
-      if (isUrgent) urgents.push(r);
+      if (isUrgent) urgents.push({ ...r, diff });
 
       /* Notification navigateur */
       if ("Notification" in window && Notification.permission === "granted" && !r.notif && diff >= 0 && diff <= 0.5) {
         new Notification("Rappel RDV — 30 minutes", {
-          body: r.patient + " a " + r.heure + (r.motif ? " (" + r.motif + ")" : ""),
+          body: r.patient + " à " + r.heure + (r.motif ? " (" + r.motif + ")" : ""),
           icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔔</text></svg>"
         });
         r.notif = true;
@@ -688,8 +672,9 @@ function afficher() {
     }
   });
 
-  /* ====== Bannière non bloquante ====== */
-  if (urgents.length > 0 && !notifClosed) {
+  /* ====== Bannière non bloquante (uniquement si l'overlay n'est pas actif) ====== */
+  const overlayActive = document.getElementById("blockOverlay").classList.contains("active");
+  if (urgents.length > 0 && !notifClosed && !overlayActive) {
     urgents.forEach((r, idx) => {
       notibarContent.innerHTML += '<div class="notif-item" style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.1); padding:10px 16px; border-radius:10px; animation-delay:' + (idx * 0.1) + 's;">'
         + "<i class='fas fa-circle-exclamation' style='font-size:1.05rem; flex-shrink:0;'></i>"
@@ -708,17 +693,22 @@ function afficher() {
     rapp.innerHTML = '<div style="color:var(--muted); font-size:0.87rem; padding:8px 0;"><i class="fas fa-check" style="margin-right:6px; color:var(--accent);"></i>Aucun rendez-vous dans les prochaines 24 heures.</div>';
   }
 
-  /* ====== OVERLAY BLOQUANT ====== */
+  /* ====== OVERLAY BLOQUANT (avec cooldown son) ====== */
   const nonDismissedUrgents = urgents.filter(r => !blockDismissedFor[r.date + r.heure + r.patient]);
   if (nonDismissedUrgents.length > 0) {
     afficherBlock(nonDismissedUrgents);
-    playAlertSound();
+    /* Son uniquement si pas joué dans la dernière minute */
+    const nowMs = Date.now();
+    if (nowMs - lastSoundTime > SOUND_COOLDOWN_MS) {
+      playAlertSound();
+      lastSoundTime = nowMs;
+    }
   }
 
-  /* Tableau */
+  /* ====== Tableau avec dates formatées ====== */
   const data = currentTab === "avenir" ? avenir : historique;
   if (data.length === 0) {
-    const msg = currentTab === "avenir" ? "Aucun rendez-vous a venir." : "Aucun rendez-vous passe.";
+    const msg = currentTab === "avenir" ? "Aucun rendez-vous à venir." : "Aucun rendez-vous passé.";
     tb.innerHTML = '<tr class="empty-row"><td colspan="6"><i class="fas fa-inbox" style="font-size:1.3rem; display:block; margin-bottom:8px; opacity:0.35;"></i>' + msg + '</td></tr>';
   } else {
     data.forEach(r => {
@@ -729,12 +719,12 @@ function afficher() {
       } else {
         if (r.diff <= 0.5) badge = '<span class="badge badge-late"><i class="fas fa-bolt" style="margin-right:3px;"></i>Imminent</span>';
         else if (r.diff <= 2) badge = '<span class="badge badge-soon"><i class="fas fa-clock" style="margin-right:3px;"></i>Bientôt</span>';
-        else badge = '<span class="badge badge-ok"><i class="fas fa-check" style="margin-right:3px;"></i>A venir</span>';
+        else badge = '<span class="badge badge-ok"><i class="fas fa-check" style="margin-right:3px;"></i>À venir</span>';
       }
       tb.innerHTML += '<tr' + rowClass + '>'
         + "<td style='font-weight:600;'>" + esc(r.patient) + "</td>"
         + "<td style='color:var(--muted);'>" + (esc(r.motif) || "—") + "</td>"
-        + "<td>" + r.date + "</td>"
+        + "<td>" + formatDateCourt(r.date) + "</td>"
         + "<td>" + r.heure + "</td>"
         + "<td>" + badge + "</td>"
         + "<td><button onclick='supprimer(" + r.index + ")' class='btn-del'><i class='fas fa-trash-can'></i></button></td>"
@@ -755,11 +745,8 @@ function playAlertSound() {
     [880, 660].forEach((freq, i) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.frequency.value = freq;
-      osc.type = "sine";
-      gain.gain.value = 0.18;
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = freq; osc.type = "sine"; gain.gain.value = 0.18;
       osc.start(ctx.currentTime + i * 0.25);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.25 + 0.22);
       osc.stop(ctx.currentTime + i * 0.25 + 0.22);
