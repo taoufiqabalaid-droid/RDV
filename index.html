@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gestion des Rendez-vous</title>
+<title>Gestion des Rendez-vous (Google Sheets)</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@200;400;500;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -42,7 +42,6 @@
   }
   .container { position: relative; z-index: 1; }
 
-  /* ====== OVERLAY BLOQUANT ====== */
   #blockOverlay {
     position: fixed; inset: 0; z-index: 9999;
     display: none; align-items: center; justify-content: center;
@@ -132,7 +131,6 @@
   }
   @keyframes lineSlide { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-  /* ====== Bannière notibar ====== */
   #notibar {
     position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
     background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
@@ -179,6 +177,7 @@
   .form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
   .form-input::placeholder { color: #b0b6c4; }
   .form-input.error { border-color: var(--danger); box-shadow: 0 0 0 3px var(--danger-glow); }
+  .form-input:disabled { opacity: 0.6; cursor: not-allowed; }
   .btn-add {
     background: var(--accent); color: #fff; border: none; padding: 11px 22px;
     border-radius: 10px; font-family: inherit; font-weight: 700; font-size: 0.88rem;
@@ -187,6 +186,7 @@
   }
   .btn-add:hover { transform: scale(1.03); box-shadow: 0 4px 16px var(--accent-glow); }
   .btn-add:active { transform: scale(0.97); }
+  .btn-add:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
   .section-title { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
   .icon-circle {
@@ -237,18 +237,17 @@
   .tab-btn:hover:not(.active) { color: var(--fg); }
   .hist-row td { color: var(--muted); }
 
-  /* ====== Modal confirmation suppression ====== */
-  #confirmModal {
+  #confirmModal, #setupModal {
     position: fixed; inset: 0; z-index: 9998;
     display: none; align-items: center; justify-content: center;
     background: rgba(0,0,0,0.5);
     -webkit-backdrop-filter: blur(6px);
     backdrop-filter: blur(6px);
   }
-  #confirmModal.active { display: flex; }
+  #confirmModal.active, #setupModal.active { display: flex; }
   .confirm-card {
     background: var(--card); border: 1px solid var(--border); border-radius: 18px;
-    padding: 32px; max-width: 400px; width: 90%; text-align: center;
+    padding: 32px; max-width: 420px; width: 90%; text-align: center;
     box-shadow: 0 20px 60px rgba(0,0,0,0.15);
     animation: blockCardIn 0.3s cubic-bezier(0.22,1,0.36,1);
   }
@@ -270,6 +269,18 @@
   .count-animate.bump { transform: scale(1.18); }
   .empty-row td { text-align: center; color: var(--muted); padding: 36px 16px; font-style: italic; }
 
+  .sync-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 0.75rem; font-weight: 600; padding: 5px 12px; border-radius: 20px;
+    cursor: pointer; border: 1px solid var(--border); background: var(--card);
+    color: var(--muted); transition: all 0.2s;
+  }
+  .sync-pill.ok { color: var(--accent); border-color: rgba(13,150,104,0.3); background: var(--accent-glow); }
+  .sync-pill.err { color: var(--danger); border-color: rgba(220,38,38,0.3); background: var(--danger-glow); }
+  .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .sync-dot.spin { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #d1d5de; border-radius: 3px; }
@@ -286,8 +297,23 @@
 </head>
 <body>
 
-<div id="storageWarning" style="display:none; position:fixed; top:0; left:0; right:0; z-index:1001; background:#fef3c7; color:#92400e; font-size:0.8rem; padding:8px 16px; text-align:center;">
-  <i class="fas fa-triangle-exclamation" style="margin-right:6px;"></i>La sauvegarde locale n'est pas disponible dans ce navigateur (mode privé ?) — vos rendez-vous ne seront pas conservés après fermeture de la page.
+<!-- ====== MODAL DE CONFIGURATION (URL de l'API Google Sheets) ====== -->
+<div id="setupModal">
+  <div class="confirm-card" style="max-width:480px;">
+    <div style="width:56px;height:56px;margin:0 auto 20px;border-radius:50%;background:var(--accent-glow);display:flex;align-items:center;justify-content:center;">
+      <i class="fas fa-table" style="color:var(--accent);font-size:22px;"></i>
+    </div>
+    <div style="font-size:1.15rem;font-weight:800;margin-bottom:8px;">Connexion à Google Sheets</div>
+    <div style="color:var(--muted);font-size:0.86rem;margin-bottom:18px; text-align:left;">
+      Collez ici l'URL de votre déploiement Apps Script (se termine par <code>/exec</code>).
+      Cette URL doit être la même sur tous les navigateurs pour partager les mêmes rendez-vous.
+    </div>
+    <input id="setupUrlInput" class="form-input" placeholder="https://script.google.com/macros/s/AKfycb.../exec" style="margin-bottom:14px;">
+    <div id="setupError" style="color:var(--danger); font-size:0.8rem; margin-bottom:10px; display:none;"></div>
+    <button onclick="validerConfig()" class="btn-add" style="width:100%; justify-content:center; display:flex; align-items:center;">
+      <i class="fas fa-plug" style="margin-right:8px;"></i>Connecter
+    </button>
+  </div>
 </div>
 
 <!-- ====== OVERLAY BLOQUANT ====== -->
@@ -344,6 +370,9 @@
         <p style="color:var(--muted); font-size:0.84rem; margin-top:2px;" id="dateNow"></p>
       </div>
     </div>
+    <div id="syncPill" class="sync-pill" onclick="ouvrirConfig()">
+      <span class="sync-dot"></span><span id="syncLabel">Non connecté</span>
+    </div>
   </header>
 
   <!-- STATISTIQUES -->
@@ -397,7 +426,7 @@
         <label style="font-size:0.72rem; color:var(--muted); font-weight:600; display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:0.04em;">Heure *</label>
         <input id="heure" type="time" class="form-input">
       </div>
-      <button type="submit" class="btn-add" style="height:44px;">
+      <button type="submit" id="btnAjouter" class="btn-add" style="height:44px;">
         <i class="fas fa-plus" style="margin-right:5px;"></i>Ajouter
       </button>
     </form>
@@ -421,22 +450,10 @@
         <div class="icon-circle" style="background:var(--accent-glow); color:var(--accent);"><i class="fas fa-table-list"></i></div>
         Rendez-vous
       </div>
-      <div class="flex items-center gap-2 flex-wrap">
-        <div class="tabs">
-          <button class="tab-btn active" onclick="switchTab('avenir', this)">À venir</button>
-          <button class="tab-btn" onclick="switchTab('historique', this)">Historique</button>
-        </div>
-        <button onclick="exporterRdvs()" title="Télécharger un fichier avec tous les rendez-vous, pour les importer dans un autre navigateur" style="background:var(--card-alt); border:1px solid var(--border); color:var(--fg); padding:8px 14px; border-radius:8px; font-family:inherit; font-weight:600; font-size:0.8rem; cursor:pointer; display:flex; align-items:center; gap:6px;">
-          <i class="fas fa-download"></i>Exporter
-        </button>
-        <label title="Charger un fichier exporté depuis un autre navigateur" style="background:var(--card-alt); border:1px solid var(--border); color:var(--fg); padding:8px 14px; border-radius:8px; font-family:inherit; font-weight:600; font-size:0.8rem; cursor:pointer; display:flex; align-items:center; gap:6px; margin:0;">
-          <i class="fas fa-upload"></i>Importer
-          <input type="file" accept=".json,application/json" onchange="importerRdvs(event)" style="display:none;">
-        </label>
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('avenir', this)">À venir</button>
+        <button class="tab-btn" onclick="switchTab('historique', this)">Historique</button>
       </div>
-    </div>
-    <div style="color:var(--muted); font-size:0.78rem; margin:-4px 0 14px;">
-      <i class="fas fa-circle-info" style="margin-right:5px;"></i>Les rendez-vous sont enregistrés uniquement dans ce navigateur. Utilisez « Exporter » puis « Importer » pour les retrouver sur un autre navigateur ou appareil.
     </div>
     <div class="table-wrap">
       <table>
@@ -461,81 +478,106 @@
 
 <script>
 /* ====================================================================
-   COMPATIBILITÉ MULTI-NAVIGATEURS
-   - localStorage encapsulé avec repli mémoire (Safari privé, iframes, etc.)
-   - Notification / AudioContext / backdrop-filter avec détection de support
-   - Aucune fonctionnalité récente non supportée (pas d'optional chaining
-     ES2020 sur de vieux navigateurs, pas de dépendance à des API
-     expérimentales)
+   STOCKAGE : Google Sheets via Google Apps Script (Web App)
+   -> tous les navigateurs/appareils qui utilisent la même URL d'API
+      voient les mêmes rendez-vous.
+   -> L'URL de l'API est enregistrée localement (localStorage) sur
+      chaque navigateur, une seule fois, via la fenêtre de config.
    ==================================================================== */
 
-/* ---- Stockage sécurisé (fonctionne même si localStorage est bloqué) ---- */
-var memoryStore = { rdvs: null };
-var storageAvailable = true;
-function testStorage() {
-  try {
-    var k = "__rdv_test__";
-    window.localStorage.setItem(k, "1");
-    window.localStorage.removeItem(k);
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-storageAvailable = ("localStorage" in window) && testStorage();
-if (!storageAvailable) {
-  var w = document.getElementById("storageWarning");
-  if (w) w.style.display = "block";
-}
+var API_URL = "";
+try { API_URL = window.localStorage.getItem("rdv_api_url") || ""; } catch (e) { API_URL = ""; }
 
-function loadRdvs() {
-  if (storageAvailable) {
-    try {
-      return JSON.parse(window.localStorage.getItem("rdvs") || "[]");
-    } catch (e) {
-      return [];
-    }
-  }
-  return memoryStore.rdvs || [];
-}
-
-function save() {
-  if (storageAvailable) {
-    try {
-      window.localStorage.setItem("rdvs", JSON.stringify(rdvs));
-      return;
-    } catch (e) {
-      storageAvailable = false;
-      var w = document.getElementById("storageWarning");
-      if (w) w.style.display = "block";
-    }
-  }
-  memoryStore.rdvs = rdvs;
-}
-
-var rdvs = loadRdvs();
+var rdvs = [];               // cache local, reflet des données du Sheet
 var currentTab = "avenir";
 var blockDismissedFor = {};
-
-/* ====== Cooldown pour le son d'alerte (évite la répétition) ====== */
 var lastSoundTime = 0;
-var SOUND_COOLDOWN_MS = 60000; // 1 minute entre deux sons
+var SOUND_COOLDOWN_MS = 60000;
+var polling = null;
+var isSyncing = false;
 
-/* Notifications navigateur : support variable (absent sur iOS Safari, etc.) */
 var notificationsSupported = ("Notification" in window);
 if (notificationsSupported && Notification.permission !== "granted" && Notification.permission !== "denied") {
-  try { Notification.requestPermission(); } catch (e) { /* anciens navigateurs (API basée sur callback) */ }
+  try { Notification.requestPermission(); } catch (e) {}
 }
 
+/* ---------------- Configuration de l'URL ---------------- */
+function ouvrirConfig() {
+  document.getElementById("setupUrlInput").value = API_URL;
+  document.getElementById("setupError").style.display = "none";
+  document.getElementById("setupModal").classList.add("active");
+}
+
+function validerConfig() {
+  var val = document.getElementById("setupUrlInput").value.trim();
+  var errEl = document.getElementById("setupError");
+  if (!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(val)) {
+    errEl.textContent = "L'URL doit être celle d'un déploiement Apps Script se terminant par /exec.";
+    errEl.style.display = "block";
+    return;
+  }
+  API_URL = val;
+  try { window.localStorage.setItem("rdv_api_url", API_URL); } catch (e) {}
+  document.getElementById("setupModal").classList.remove("active");
+  updateSyncPill("loading");
+  chargerRdvs();
+}
+
+function updateSyncPill(state, msg) {
+  var pill = document.getElementById("syncPill");
+  var label = document.getElementById("syncLabel");
+  var dot = pill.querySelector(".sync-dot");
+  pill.classList.remove("ok", "err");
+  dot.classList.remove("spin");
+  if (state === "loading") { label.textContent = "Synchronisation..."; dot.classList.add("spin"); }
+  else if (state === "ok") { pill.classList.add("ok"); label.textContent = msg || "Synchronisé"; }
+  else if (state === "err") { pill.classList.add("err"); label.textContent = msg || "Erreur de connexion"; }
+  else { label.textContent = "Non connecté"; }
+}
+
+/* ---------------- Appels réseau ---------------- */
+function apiGet() {
+  if (!API_URL) return Promise.reject(new Error("no-url"));
+  return fetch(API_URL, { method: "GET" }).then(function (r) {
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    return r.json();
+  });
+}
+
+function apiPost(payload) {
+  if (!API_URL) return Promise.reject(new Error("no-url"));
+  /* content-type text/plain évite le préflight CORS (OPTIONS) que
+     Apps Script ne gère pas nativement pour doPost */
+  return fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify(payload)
+  }).then(function (r) {
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    return r.json();
+  });
+}
+
+function chargerRdvs() {
+  if (!API_URL) { updateSyncPill("idle"); return Promise.resolve(); }
+  isSyncing = true;
+  return apiGet().then(function (res) {
+    if (!res || !res.success) throw new Error(res && res.error || "réponse invalide");
+    rdvs = res.data || [];
+    updateSyncPill("ok", "Synchronisé");
+    afficher();
+  }).catch(function (err) {
+    updateSyncPill("err", "Connexion impossible");
+    console.error("chargerRdvs:", err);
+  }).finally(function () { isSyncing = false; });
+}
+
+/* ---------------- Horloge ---------------- */
 function setDateNow() {
   var now = new Date();
   var opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
   var str;
-  try {
-    str = now.toLocaleDateString('fr-FR', opts);
-  } catch (e) {
-    str = now.toDateString();
-  }
+  try { str = now.toLocaleDateString('fr-FR', opts); } catch (e) { str = now.toDateString(); }
   str = str.charAt(0).toUpperCase() + str.slice(1);
   var h = String(now.getHours()).padStart(2, '0');
   var m = String(now.getMinutes()).padStart(2, '0');
@@ -544,20 +586,18 @@ function setDateNow() {
 setDateNow();
 setInterval(setDateNow, 30000);
 
-/* ====== Formatage date en français (indépendant de Intl pour fiabilité) ====== */
 function formatDateFR(dateStr) {
   var parts = dateStr.split("-");
   var mois = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
   return parseInt(parts[2], 10) + " " + mois[parseInt(parts[1], 10) - 1] + " " + parts[0];
 }
-
-/* ====== Format court pour les rappels ====== */
 function formatDateCourt(dateStr) {
   var parts = dateStr.split("-");
   var moisCourt = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
   return parseInt(parts[2], 10) + " " + moisCourt[parseInt(parts[1], 10) - 1];
 }
 
+/* ---------------- Ajout ---------------- */
 function ajouter() {
   var pEl = document.getElementById("patient");
   var mEl = document.getElementById("motif");
@@ -567,59 +607,72 @@ function ajouter() {
   var d = dEl.value, h = hEl.value;
 
   var hasError = false;
-  [pEl, dEl, hEl].forEach(function(el) { el.classList.remove("error"); });
+  [pEl, dEl, hEl].forEach(function (el) { el.classList.remove("error"); });
   if (!p) { pEl.classList.add("error"); hasError = true; }
   if (!d) { dEl.classList.add("error"); hasError = true; }
   if (!h) { hEl.classList.add("error"); hasError = true; }
-
   if (hasError) {
     showToast("<i class='fas fa-exclamation-circle' style='color:var(--danger);margin-right:8px;'></i>Complétez les champs obligatoires (Personne concernée, Date, Heure).");
     return;
   }
+  if (!API_URL) { ouvrirConfig(); return; }
 
-  rdvs.push({ patient: p, motif: m, date: d, heure: h, notif: false });
-  save();
-  pEl.value = ""; mEl.value = "";
-  [pEl, dEl, hEl].forEach(function(el) { el.classList.remove("error"); });
-  afficher();
-  showToast("<i class='fas fa-check-circle' style='color:var(--accent);margin-right:8px;'></i>Rendez-vous ajouté avec succès.");
+  var btn = document.getElementById("btnAjouter");
+  btn.disabled = true;
+  apiPost({ action: "add", patient: p, motif: m, date: d, heure: h })
+    .then(function (res) {
+      if (!res.success) throw new Error(res.error || "échec");
+      pEl.value = ""; mEl.value = "";
+      showToast("<i class='fas fa-check-circle' style='color:var(--accent);margin-right:8px;'></i>Rendez-vous ajouté avec succès.");
+      return chargerRdvs();
+    })
+    .catch(function (err) {
+      showToast("<i class='fas fa-exclamation-circle' style='color:var(--danger);margin-right:8px;'></i>Impossible d'ajouter le rendez-vous (vérifiez la connexion).");
+      console.error(err);
+    })
+    .finally(function () { btn.disabled = false; });
 }
 
-document.addEventListener("input", function(e) {
+document.addEventListener("input", function (e) {
   if (e.target.classList.contains("form-input")) e.target.classList.remove("error");
 });
 
-/* ====== Suppression avec confirmation ====== */
-var pendingDeleteIndex = null;
+/* ---------------- Suppression ---------------- */
+var pendingDeleteId = null;
 
-function supprimer(i) {
-  var r = rdvs[i];
-  pendingDeleteIndex = i;
+function supprimer(id) {
+  var r = rdvs.find(function (x) { return String(x.id) === String(id); });
+  if (!r) return;
+  pendingDeleteId = id;
   document.getElementById("confirmText").textContent =
     r.patient + " — " + formatDateFR(r.date) + " à " + r.heure + (r.motif ? " (" + r.motif + ")" : "");
   document.getElementById("confirmModal").classList.add("active");
 }
-
 function annulerSuppression() {
-  pendingDeleteIndex = null;
+  pendingDeleteId = null;
   document.getElementById("confirmModal").classList.remove("active");
 }
-
-document.getElementById("confirmDeleteBtn").addEventListener("click", function() {
-  if (pendingDeleteIndex !== null) {
-    var r = rdvs[pendingDeleteIndex];
-    rdvs.splice(pendingDeleteIndex, 1);
-    save();
-    afficher();
-    showToast("<i class='fas fa-trash' style='color:var(--danger);margin-right:8px;'></i>RDV de " + esc(r.patient) + " supprimé.");
-  }
-  pendingDeleteIndex = null;
+document.getElementById("confirmDeleteBtn").addEventListener("click", function () {
+  if (pendingDeleteId === null) { document.getElementById("confirmModal").classList.remove("active"); return; }
+  var id = pendingDeleteId;
+  var r = rdvs.find(function (x) { return String(x.id) === String(id); });
   document.getElementById("confirmModal").classList.remove("active");
+  apiPost({ action: "delete", id: id })
+    .then(function (res) {
+      if (!res.success) throw new Error(res.error || "échec");
+      showToast("<i class='fas fa-trash' style='color:var(--danger);margin-right:8px;'></i>RDV de " + esc(r ? r.patient : "") + " supprimé.");
+      return chargerRdvs();
+    })
+    .catch(function (err) {
+      showToast("<i class='fas fa-exclamation-circle' style='color:var(--danger);margin-right:8px;'></i>La suppression a échoué.");
+      console.error(err);
+    });
+  pendingDeleteId = null;
 });
 
 function esc(s) {
   if (!s) return "";
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
 function switchTab(tab, btn) {
@@ -638,16 +691,15 @@ function showToast(html) {
   t.innerHTML = html;
   t.classList.add("show");
   clearTimeout(t._timer);
-  t._timer = setTimeout(function() { t.classList.remove("show"); }, 3500);
+  t._timer = setTimeout(function () { t.classList.remove("show"); }, 3500);
 }
 
-/* ====== OVERLAY BLOQUANT ====== */
+/* ---------------- Overlay bloquant ---------------- */
 function afficherBlock(urgents) {
   var overlay = document.getElementById("blockOverlay");
   var list = document.getElementById("blockList");
   list.innerHTML = "";
-
-  urgents.forEach(function(r, idx) {
+  urgents.forEach(function (r, idx) {
     var minR = Math.max(0, Math.round(r.diff * 60));
     list.innerHTML += '<div class="block-rdv-item" style="animation-delay:' + (idx * 0.12) + 's;">'
       + '<div class="block-rdv-name"><i class="fas fa-user" style="margin-right:8px; opacity:0.5;"></i>' + esc(r.patient) + '</div>'
@@ -658,24 +710,20 @@ function afficherBlock(urgents) {
       + '<div class="block-rdv-time"><i class="fas fa-bolt" style="margin-right:4px;"></i>DANS ' + minR + ' MIN</div>'
       + '</div>';
   });
-
   overlay.classList.add("active");
 }
-
 function fermerBlock() {
   document.getElementById("blockOverlay").classList.remove("active");
   var now = new Date();
-  rdvs.forEach(function(r) {
+  rdvs.forEach(function (r) {
     var dt = new Date(r.date + "T" + r.heure);
     var diff = (dt - now) / 36e5;
-    if (diff >= 0 && diff <= 0.5) {
-      blockDismissedFor[r.date + r.heure + r.patient] = true;
-    }
+    if (diff >= 0 && diff <= 0.5) blockDismissedFor[r.id] = true;
   });
   playTone([660]);
 }
 
-/* ====== Son d'alerte (Web Audio API avec préfixe webkit pour Safari) ====== */
+/* ---------------- Son ---------------- */
 function getAudioCtx() {
   var Ctx = window.AudioContext || window.webkitAudioContext;
   if (!Ctx) return null;
@@ -685,7 +733,7 @@ function playTone(freqs) {
   var ctx = getAudioCtx();
   if (!ctx) return;
   try {
-    freqs.forEach(function(freq, i) {
+    freqs.forEach(function (freq, i) {
       var osc = ctx.createOscillator();
       var gain = ctx.createGain();
       osc.connect(gain); gain.connect(ctx.destination);
@@ -695,19 +743,17 @@ function playTone(freqs) {
       osc.stop(ctx.currentTime + i * 0.25 + 0.3);
     });
     if (ctx.state === "suspended" && ctx.resume) ctx.resume();
-  } catch (e) { /* silencieux si l'audio est bloqué par le navigateur */ }
+  } catch (e) {}
 }
 function playAlertSound() { playTone([880, 660]); }
 
-/* ====== AFFICHAGE PRINCIPAL ====== */
+/* ---------------- Rendu principal (à partir du cache local `rdvs`) ---------------- */
 function afficher() {
   var tb = document.getElementById("tbody");
   var rapp = document.getElementById("rappels");
   var notibar = document.getElementById("notibar");
   var notibarContent = document.getElementById("notibar-content");
-  tb.innerHTML = "";
-  rapp.innerHTML = "";
-  notibarContent.innerHTML = "";
+  tb.innerHTML = ""; rapp.innerHTML = ""; notibarContent.innerHTML = "";
 
   var total = rdvs.length, todayCount = 0, soonCount = 0, lateCount = 0;
   var now = new Date();
@@ -716,35 +762,26 @@ function afficher() {
   var da = String(now.getDate()).padStart(2, "0");
   var todayStr = y + "-" + mo + "-" + da;
 
-  rdvs.sort(function(a, b) { return (a.date + a.heure).localeCompare(b.date + b.heure); });
+  var sorted = rdvs.slice().sort(function (a, b) { return (a.date + a.heure).localeCompare(b.date + b.heure); });
 
-  var avenir = [];
-  var historique = [];
-  var urgents = [];
+  var avenir = [], historique = [], urgents = [];
 
-  rdvs.forEach(function(r, i) {
+  sorted.forEach(function (r) {
     var dt = new Date(r.date + "T" + r.heure);
     var diff = (dt - now) / 36e5;
-
     if (r.date === todayStr) todayCount++;
     if (diff >= 0 && diff <= 24) soonCount++;
     if (diff < 0) lateCount++;
 
-    var entry = Object.assign({}, r, { diff: diff, index: i });
-    if (diff < 0) { historique.push(entry); } else { avenir.push(entry); }
+    var entry = Object.assign({}, r, { diff: diff });
+    if (diff < 0) historique.push(entry); else avenir.push(entry);
 
     if (diff >= 0 && diff <= 24) {
       var minR = Math.round(diff * 60);
-      var timeStr = "";
-      var isUrgent = false;
-      if (diff <= 0.5) {
-        timeStr = "<span style='color:#dc2626; font-weight:800; font-size:0.81rem;'>DANS " + minR + " MIN</span>";
-        isUrgent = true;
-      } else if (diff <= 2) {
-        timeStr = "<span style='color:#d97706; font-weight:700; font-size:0.81rem;'>dans " + minR + " min</span>";
-      } else {
-        timeStr = "<span style='color:var(--muted); font-size:0.81rem;'>dans " + Math.round(diff) + "h</span>";
-      }
+      var timeStr = "", isUrgent = false;
+      if (diff <= 0.5) { timeStr = "<span style='color:#dc2626; font-weight:800; font-size:0.81rem;'>DANS " + minR + " MIN</span>"; isUrgent = true; }
+      else if (diff <= 2) { timeStr = "<span style='color:#d97706; font-weight:700; font-size:0.81rem;'>dans " + minR + " min</span>"; }
+      else { timeStr = "<span style='color:var(--muted); font-size:0.81rem;'>dans " + Math.round(diff) + "h</span>"; }
 
       rapp.innerHTML += '<div class="rappel-card' + (isUrgent ? ' urgent' : '') + '">'
         + "<div style='display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;'>"
@@ -754,26 +791,24 @@ function afficher() {
         + (r.motif ? "<div style='color:var(--muted); font-size:0.82rem; margin-top:3px;'>" + esc(r.motif) + "</div>" : "")
         + "</div>";
 
-      if (isUrgent) urgents.push(Object.assign({}, r, { diff: diff }));
+      if (isUrgent) urgents.push(entry);
 
-      /* Notification navigateur (dégradation silencieuse si non supportée / refusée) */
       if (notificationsSupported && Notification.permission === "granted" && !r.notif && diff >= 0 && diff <= 0.5) {
         try {
           new Notification("Rappel RDV — 30 minutes", {
             body: r.patient + " à " + r.heure + (r.motif ? " (" + r.motif + ")" : ""),
             icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔔</text></svg>"
           });
-        } catch (e) { /* certains navigateurs mobiles n'autorisent pas new Notification() hors Service Worker */ }
+        } catch (e) {}
         r.notif = true;
-        save();
+        apiPost({ action: "update", id: r.id, notif: true }).catch(function () {});
       }
     }
   });
 
-  /* ====== Bannière non bloquante (uniquement si l'overlay n'est pas actif) ====== */
   var overlayActive = document.getElementById("blockOverlay").classList.contains("active");
   if (urgents.length > 0 && !notifClosed && !overlayActive) {
-    urgents.forEach(function(r, idx) {
+    urgents.forEach(function (r, idx) {
       notibarContent.innerHTML += '<div class="notif-item" style="display:flex; align-items:center; gap:12px; background:rgba(255,255,255,0.1); padding:10px 16px; border-radius:10px; animation-delay:' + (idx * 0.1) + 's;">'
         + "<i class='fas fa-circle-exclamation' style='font-size:1.05rem; flex-shrink:0;'></i>"
         + "<div style='flex:1;'>"
@@ -791,24 +826,19 @@ function afficher() {
     rapp.innerHTML = '<div style="color:var(--muted); font-size:0.87rem; padding:8px 0;"><i class="fas fa-check" style="margin-right:6px; color:var(--accent);"></i>Aucun rendez-vous dans les prochaines 24 heures.</div>';
   }
 
-  /* ====== OVERLAY BLOQUANT (avec cooldown son) ====== */
-  var nonDismissedUrgents = urgents.filter(function(r) { return !blockDismissedFor[r.date + r.heure + r.patient]; });
+  var nonDismissedUrgents = urgents.filter(function (r) { return !blockDismissedFor[r.id]; });
   if (nonDismissedUrgents.length > 0) {
     afficherBlock(nonDismissedUrgents);
     var nowMs = Date.now();
-    if (nowMs - lastSoundTime > SOUND_COOLDOWN_MS) {
-      playAlertSound();
-      lastSoundTime = nowMs;
-    }
+    if (nowMs - lastSoundTime > SOUND_COOLDOWN_MS) { playAlertSound(); lastSoundTime = nowMs; }
   }
 
-  /* ====== Tableau avec dates formatées ====== */
   var data = currentTab === "avenir" ? avenir : historique;
   if (data.length === 0) {
     var msg = currentTab === "avenir" ? "Aucun rendez-vous à venir." : "Aucun rendez-vous passé.";
     tb.innerHTML = '<tr class="empty-row"><td colspan="6"><i class="fas fa-inbox" style="font-size:1.3rem; display:block; margin-bottom:8px; opacity:0.35;"></i>' + msg + '</td></tr>';
   } else {
-    data.forEach(function(r) {
+    data.forEach(function (r) {
       var badge = "", rowClass = "";
       if (currentTab === "historique") {
         rowClass = ' class="hist-row"';
@@ -824,7 +854,7 @@ function afficher() {
         + "<td>" + formatDateCourt(r.date) + "</td>"
         + "<td>" + r.heure + "</td>"
         + "<td>" + badge + "</td>"
-        + "<td><button onclick='supprimer(" + r.index + ")' class='btn-del'><i class='fas fa-trash-can'></i></button></td>"
+        + "<td><button onclick=\"supprimer('" + r.id + "')\" class='btn-del'><i class='fas fa-trash-can'></i></button></td>"
         + "</tr>";
     });
   }
@@ -835,93 +865,34 @@ function afficher() {
   animCount("late", lateCount);
 }
 
-/* ====== EXPORT / IMPORT (pour transférer les RDV vers un autre navigateur) ====== */
-function exporterRdvs() {
-  try {
-    var data = JSON.stringify(rdvs, null, 2);
-    var blob = new Blob([data], { type: "application/json" });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement("a");
-    var now = new Date();
-    var stamp = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2,"0") + "-" + String(now.getDate()).padStart(2,"0");
-    a.href = url;
-    a.download = "rendez-vous-" + stamp + ".json";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
-    showToast("<i class='fas fa-download' style='color:var(--accent);margin-right:8px;'></i>Fichier exporté. Importez-le dans l'autre navigateur.");
-  } catch (e) {
-    showToast("<i class='fas fa-exclamation-circle' style='color:var(--danger);margin-right:8px;'></i>L'export a échoué sur ce navigateur.");
-  }
-}
-
-function importerRdvs(event) {
-  var file = event.target.files && event.target.files[0];
-  if (!file) return;
-  var reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      var imported = JSON.parse(e.target.result);
-      if (!Array.isArray(imported)) throw new Error("format invalide");
-
-      var valides = imported.filter(function(r) {
-        return r && typeof r.patient === "string" && typeof r.date === "string" && typeof r.heure === "string";
-      });
-
-      if (valides.length === 0) {
-        showToast("<i class='fas fa-exclamation-circle' style='color:var(--danger);margin-right:8px;'></i>Fichier vide ou invalide.");
-        event.target.value = "";
-        return;
-      }
-
-      /* Fusionne en évitant les doublons exacts (même personne + date + heure) */
-      var existants = {};
-      rdvs.forEach(function(r) { existants[r.patient + "|" + r.date + "|" + r.heure] = true; });
-      var ajoutes = 0;
-      valides.forEach(function(r) {
-        var cle = r.patient + "|" + r.date + "|" + r.heure;
-        if (!existants[cle]) {
-          rdvs.push({ patient: r.patient, motif: r.motif || "", date: r.date, heure: r.heure, notif: false });
-          existants[cle] = true;
-          ajoutes++;
-        }
-      });
-
-      save();
-      afficher();
-      showToast("<i class='fas fa-check-circle' style='color:var(--accent);margin-right:8px;'></i>" + ajoutes + " rendez-vous importé(s) (doublons ignorés).");
-    } catch (err) {
-      showToast("<i class='fas fa-exclamation-circle' style='color:var(--danger);margin-right:8px;'></i>Le fichier n'est pas un export valide.");
-    }
-    event.target.value = "";
-  };
-  reader.onerror = function() {
-    showToast("<i class='fas fa-exclamation-circle' style='color:var(--danger);margin-right:8px;'></i>Impossible de lire le fichier.");
-    event.target.value = "";
-  };
-  reader.readAsText(file);
-}
-
 function animCount(id, val) {
   var el = document.getElementById(id);
   var prev = parseInt(el.textContent, 10) || 0;
   if (prev !== val) {
     el.textContent = val;
     el.classList.add("bump");
-    setTimeout(function() { el.classList.remove("bump"); }, 300);
+    setTimeout(function () { el.classList.remove("bump"); }, 300);
   }
 }
 
-/* ====== Init ====== */
+/* ---------------- Initialisation ---------------- */
 var nowI = new Date();
 document.getElementById("date").value = nowI.getFullYear() + "-" + String(nowI.getMonth() + 1).padStart(2, "0") + "-" + String(nowI.getDate()).padStart(2, "0");
 
-afficher();
-setInterval(afficher, 15000);
+if (!API_URL) {
+  ouvrirConfig();
+  updateSyncPill("idle");
+} else {
+  updateSyncPill("loading");
+  chargerRdvs();
+}
 
-/* Débloque le son sur mobile (Safari iOS exige une interaction utilisateur
-   avant d'autoriser AudioContext) */
+/* Rafraîchit depuis Google Sheets toutes les 15 secondes : c'est ce qui
+   permet à tous les navigateurs de voir les mêmes rendez-vous. */
+polling = setInterval(function () {
+  if (API_URL && !isSyncing) chargerRdvs();
+}, 15000);
+
 document.addEventListener("click", function unlockAudioOnce() {
   var ctx = getAudioCtx();
   if (ctx && ctx.resume) ctx.resume();
